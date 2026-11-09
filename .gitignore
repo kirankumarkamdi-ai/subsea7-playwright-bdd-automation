@@ -1,0 +1,7 @@
+node_modules/
+dist/
+playwright-report/
+reports/**/*.png
+reports/**/*.html
+.DS_Store
+.env
