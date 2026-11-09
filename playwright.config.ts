@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './features',
+  testDir: './playwright-tests',
   timeout: 30_000,
   expect: {
     timeout: 5_000,
@@ -17,14 +17,11 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    ignoreHTTPSErrors: true,
   },
   projects: [
     {
       name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-      },
+      use: { ...devices['Desktop Chrome'] },
     },
   ],
 });

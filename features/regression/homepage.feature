@@ -1,8 +1,10 @@
-Feature: Regression smoke test
-  As a user
-  I want to open the application homepage
-  So that I can verify the basic page loads successfully
+Feature: Homepage regression
+  As a visitor
+  I want to open the website homepage
+  So that I can verify the site is available
 
-  Scenario: Open homepage
+  @smoke
+  Scenario: Homepage loads with its expected heading
     Given I open the home page
-    Then the page title should contain "Example"
+    Then the page title should contain "Example Domain"
+    And I should see the heading "Example Domain"

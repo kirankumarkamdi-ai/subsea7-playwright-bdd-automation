@@ -1,47 +1,96 @@
-# subsea7-playwright-bdd-automation
+# Subsea7 Playwright BDD Automation
 
-A Playwright + Cucumber BDD automation starter project for end-to-end web testing.
+A starter end-to-end automation project using Playwright, Cucumber, TypeScript, and the Page Object Model. The included tests use `https://example.com` as a safe placeholder; replace it with your authorized application URL and add your application-specific scenarios.
 
-## Tech stack
-- Playwright
-- TypeScript
-- Cucumber.js
-- Page Object Model structure
+## Requirements
 
-## Project structure
+- Node.js 20 or newer (LTS recommended)
+- Git
+- Visual Studio Code
 
-- `features/` – Gherkin feature files
-- `step-definitions/` – Cucumber step implementations
-- `pages/` – Page Object Model classes
-- `support/` – Hooks, world object, test setup
-- `test-data/` – Test data files and fixtures
-- `config/` – Environment-specific configuration
-- `reports/` – HTML and screenshot outputs
+## Clone and open in VS Code
 
-## Setup
+1. In VS Code, open the Command Palette (`Ctrl+Shift+P` on Windows/Linux or `Cmd+Shift+P` on macOS).
+2. Select **Git: Clone**.
+3. Paste `https://github.com/kirankumarkamdi-ai/subsea7-playwright-bdd-automation.git`.
+4. Choose a local folder, then select **Open** when VS Code prompts you.
+5. Open **Terminal → New Terminal** and run the setup commands below.
+
+Alternatively, clone from a terminal and open the project:
+
+```bash
+git clone https://github.com/kirankumarkamdi-ai/subsea7-playwright-bdd-automation.git
+cd subsea7-playwright-bdd-automation
+code .
+```
+
+If `code .` is not recognized, use VS Code's **File → Open Folder** and choose the cloned directory.
+
+## Install and configure
 
 ```bash
 npm install
+npx playwright install chromium
+```
+
+Copy `.env.example` to `.env` and set `BASE_URL` to your authorized test environment. Keep secrets out of source control; `.env` is ignored by Git.
+
+```dotenv
+BASE_URL=https://your-test-environment.example
 ```
 
 ## Run tests
+
+Run the Cucumber BDD scenarios:
 
 ```bash
 npm run test:bdd
 ```
 
-## Useful commands
+Run only scenarios tagged `@smoke`:
 
 ```bash
-npm run test:bdd -- --tags @smoke
-npx playwright test
-npx playwright show-report
+npm run test:bdd:smoke
 ```
 
-## Environment
-
-Set the base URL before running tests:
+Run the standalone Playwright example:
 
 ```bash
-export BASE_URL="https://example.com"
+npm run test:playwright
 ```
+
+Cucumber's HTML report is written to `reports/cucumber-report.html`. Playwright's HTML report is written to `reports/playwright-report/`; open it with:
+
+```bash
+npm run test:report
+```
+
+Screenshots for failed Cucumber scenarios are saved under `reports/screenshots/`.
+
+## Project layout
+
+```text
+features/
+  regression/           Gherkin feature files
+step-definitions/       Cucumber step implementations
+pages/                  Page Object Model classes
+support/                Cucumber World and hooks
+  hooks.ts
+  world.ts
+test-data/               Test data and fixtures
+config/                  Environment configuration
+playwright-tests/        Standalone Playwright specs
+reports/                 Generated test reports and screenshots
+.vscode/                 Recommended VS Code extensions
+playwright.config.ts
+cucumber.js
+package.json
+tsconfig.json
+```
+
+## Add your application tests
+
+- Update `BASE_URL` in `.env` for your test environment.
+- Add business scenarios under `features/` using Gherkin.
+- Implement steps in `step-definitions/` and keep UI interactions in `pages/`.
+- Use test accounts and data approved for the environment. Avoid committing credentials or production customer data.

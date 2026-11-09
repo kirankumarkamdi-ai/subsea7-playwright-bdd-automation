@@ -3,7 +3,7 @@
     "target": "ES2022",
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "lib": ["ES2022"],
+    "lib": ["ES2022", "DOM"],
     "strict": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -13,12 +13,6 @@
     "outDir": "dist",
     "baseUrl": "."
   },
-  "include": [
-    "**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "reports"
-  ]
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist", "reports"]
 }
