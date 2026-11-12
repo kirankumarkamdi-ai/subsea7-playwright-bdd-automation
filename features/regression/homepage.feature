@@ -4,7 +4,6 @@ Feature: Homepage regression
   So that I can verify the site is available
 
   @smoke
-  Scenario: Homepage loads with its expected heading
+  Scenario: Homepage loads with its expected title
     Given I open the home page
-    Then the page title should contain "Example Domain"
-    And I should see the heading "Example Domain"
+    Then the page title should contain "HSSEQ Cards"

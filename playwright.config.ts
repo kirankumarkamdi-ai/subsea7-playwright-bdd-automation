@@ -1,4 +1,10 @@
+import 'dotenv/config';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
+import { getBaseUrl } from './support/environment';
+
+const authStatePath = resolve(__dirname, 'playwright/.auth/user.json');
 
 export default defineConfig({
   testDir: './playwright-tests',
@@ -12,7 +18,8 @@ export default defineConfig({
     ['html', { outputFolder: 'reports/playwright-report', open: 'never' }],
   ],
   use: {
-    baseURL: process.env.BASE_URL || 'https://example.com',
+    baseURL: getBaseUrl(),
+    storageState: existsSync(authStatePath) ? authStatePath : undefined,
     headless: true,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',

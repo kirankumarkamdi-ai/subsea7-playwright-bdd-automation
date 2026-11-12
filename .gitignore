@@ -4,4 +4,5 @@ playwright-report/
 reports/**/*.png
 reports/**/*.html
 .env
+playwright/.auth/
 .DS_Store
