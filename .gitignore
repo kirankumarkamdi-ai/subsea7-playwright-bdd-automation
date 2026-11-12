@@ -5,3 +5,4 @@ reports/**/*.png
 reports/**/*.html
 .env
 .DS_Store
+playwright/.auth/

@@ -12,8 +12,9 @@ export default defineConfig({
     ['html', { outputFolder: 'reports/playwright-report', open: 'never' }],
   ],
   use: {
-    baseURL: process.env.BASE_URL || 'https://example.com',
-    headless: true,
+    baseURL: process.env.BASE_URL || 'https://hsseqcards-dv.subsea7.com',
+    storageState: 'playwright/.auth/user.json',
+    headless: false,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
