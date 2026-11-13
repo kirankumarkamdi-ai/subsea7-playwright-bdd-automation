@@ -71,6 +71,21 @@ export class AdminApprovalPage {
     await this.page.getByRole('button', { name: 'Validate & Approve Data', exact: true }).click();
   }
 
+  async rejectCreatedCard(): Promise<void> {
+    const rejectButton = this.page.getByRole('button', { name: 'Reject Card', exact: true });
+    await expect(rejectButton).toBeEnabled();
+    await rejectButton.click();
+
+    const reasonField = this.page.getByRole('textbox', { name: 'Reason for Rejection' });
+    await expect(reasonField).toBeEnabled();
+    await reasonField.fill(cardData.rejectionReason);
+
+    const confirmButton = this.page.getByRole('button', { name: 'Confirm Rejection', exact: true });
+    await expect(confirmButton).toBeEnabled();
+    await confirmButton.click();
+    await expect(confirmButton).toBeHidden({ timeout: 30_000 });
+  }
+
   async expectStatusInMyHistory(status: string): Promise<void> {
     await this.page.goto('/history');
     await expect(this.page.getByRole('heading', { name: 'My History', exact: true })).toBeEnabled();

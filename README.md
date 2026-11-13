@@ -93,7 +93,15 @@ HEADLESS=false npm run test:bdd -- --tags @admin
 
 In PowerShell, use `$env:HEADLESS="false"; npm run test:bdd -- --tags @admin`. The default remains headless.
 
-The scenario uses the manual entry form instead of PDF/OCR processing: it enters a sample observation, submits it, finds its generated card ID in the validation queue, validates and approves that card, then checks that the same card has `approved` status in My History. Its sample values are in `test-data/admin-approval.json`; update that fixture if the UAT client, project, worksite, or observation changes. It requires a saved `worksite_admin` session. It does not verify GCS JSON output or EventArc events.
+The admin scenarios use the manual entry form instead of PDF/OCR processing. They submit a fresh card, find its generated card ID in the validation queue, complete review, and then either approve or reject it. Each scenario checks the new card's resulting status in My History; the rejection scenario uses the configured reason in `test-data/admin-approval.json`. Update that fixture if the UAT client, project, worksite, observation, or rejection reason changes. The scenarios require a saved `worksite_admin` session. They do not verify Firestore contents, post-processing, notifications, GCS JSON output, or EventArc events.
+
+Run the sidebar module navigation scenario:
+
+```bash
+npm run test:bdd -- --tags @navigation
+```
+
+It clicks each sidebar module in sequence and verifies the resulting route and page heading.
 
 If the scenario reports that the app redirected to an authentication provider, the saved session has expired or is invalid. Run `npm run auth:setup`, complete sign-in and MFA, press Enter in the terminal to overwrite the local session state, and retry.
 

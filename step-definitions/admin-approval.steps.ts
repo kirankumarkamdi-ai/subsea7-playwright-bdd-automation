@@ -29,6 +29,10 @@ When('I validate and approve the card data', async function (this: CustomWorld) 
   await this.adminApprovalPage.validateAndApprove();
 });
 
+When('I reject the new card using the configured reason', async function (this: CustomWorld) {
+  await this.adminApprovalPage.rejectCreatedCard();
+});
+
 Then(
   'the new card should show status {string} in My History',
   async function (this: CustomWorld, status: string) {
