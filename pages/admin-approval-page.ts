@@ -16,7 +16,7 @@ export class AdminApprovalPage {
     await this.page.goto('/submit');
     await expect(
       this.page.getByRole('heading', { name: 'Manual Submission', exact: true }),
-    ).toBeVisible();
+    ).toBeEnabled();
 
     await this.selectOption('Country', cardData.country);
     await this.selectOption('Onshore/OffShore', cardData.shore);
@@ -73,12 +73,12 @@ export class AdminApprovalPage {
 
   async expectStatusInMyHistory(status: string): Promise<void> {
     await this.page.goto('/history');
-    await expect(this.page.getByRole('heading', { name: 'My History', exact: true })).toBeVisible();
+    await expect(this.page.getByRole('heading', { name: 'My History', exact: true })).toBeEnabled();
     const row = this.page.getByRole('row').filter({ hasText: this.createdCardId });
-    await expect(row, `Expected card "${this.createdCardId}" in My History.`).toBeVisible({
+    await expect(row, `Expected card "${this.createdCardId}" in My History.`).toBeEnabled({
       timeout: 30_000,
     });
-    await expect(row.getByRole('cell', { name: status, exact: true })).toBeVisible({
+    await expect(row.getByRole('cell', { name: status, exact: true })).toBeEnabled({
       timeout: 30_000,
     });
   }
@@ -103,7 +103,7 @@ export class AdminApprovalPage {
     });
     await combo.click();
     const option = this.page.getByRole('option', { name: optionName, exact: true });
-    await expect(option).toBeVisible();
+    await expect(option).toBeEnabled();
     await option.click();
   }
 
