@@ -4,11 +4,11 @@ import { resolve } from 'node:path';
 import { AdminApprovalPage } from '../pages/admin-approval-page';
 import { CustomWorld } from '../support/world';
 
-Given('a sys_admin authenticated session has been configured', function (this: CustomWorld) {
+Given('a worksite_admin authenticated session has been configured', function (this: CustomWorld) {
   const authStatePath = resolve('playwright/.auth/user.json');
   if (!existsSync(authStatePath)) {
     throw new Error(
-      'No saved browser session was found. Run `npm run auth:setup` and sign in as sys_admin before this scenario.',
+      'No saved browser session was found. Run `npm run auth:setup` and sign in as worksite_admin before this scenario.',
     );
   }
   this.adminApprovalPage = new AdminApprovalPage(this.page);
