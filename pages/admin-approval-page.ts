@@ -64,7 +64,7 @@ export class AdminApprovalPage {
     await this.clickNextSteps(4);
     await expect(
       this.page.getByRole('button', { name: 'Validate & Approve Data', exact: true }),
-    ).toBeVisible();
+    ).toBeEnabled();
   }
 
   async validateAndApprove(): Promise<void> {
