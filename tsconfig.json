@@ -3,6 +3,7 @@
     "target": "ES2022",
     "module": "CommonJS",
     "moduleResolution": "Node",
+    "ignoreDeprecations": "6.0",
     "lib": ["ES2022", "DOM"],
     "strict": true,
     "esModuleInterop": true,
@@ -10,8 +11,7 @@
     "skipLibCheck": true,
     "types": ["node"],
     "resolveJsonModule": true,
-    "outDir": "dist",
-    "baseUrl": "."
+    "outDir": "dist"
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules", "dist", "reports"]

@@ -1,13 +1,22 @@
-import { After, Before, setWorldConstructor, Status } from '@cucumber/cucumber';
+import { After, Before, setDefaultTimeout, setWorldConstructor, Status } from '@cucumber/cucumber';
 import { chromium } from '@playwright/test';
 import { mkdir } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { getBaseUrl } from './environment';
 import { CustomWorld } from './world';
 
 setWorldConstructor(CustomWorld);
+setDefaultTimeout(240_000);
 
 Before(async function (this: CustomWorld) {
-  this.browser = await chromium.launch({ headless: true });
-  this.context = await this.browser.newContext();
+  this.browser = await chromium.launch({ headless: process.env.HEADLESS !== 'false' });
+  const authStatePath = resolve('playwright/.auth/user.json');
+  this.context = await this.browser.newContext({
+    baseURL: getBaseUrl(),
+    storageState: existsSync(authStatePath) ? authStatePath : undefined,
+  });
+  this.context.setDefaultTimeout(10_000);
   this.page = await this.context.newPage();
 });
 
