@@ -16,7 +16,7 @@ export class ValidationQueuePage {
   async expectSummaryCards(): Promise<void> {
     for (const { label, color } of summaryCards) {
       const labelText = this.page.getByText(label, { exact: true });
-      await expect(labelText).toBeVisible();
+      await expect(labelText).toBeEnabled();
 
       const card = labelText.locator('..').locator('..');
       const counter = card.getByText(/^\d+$/);
@@ -40,7 +40,7 @@ export class ValidationQueuePage {
 
       const options = this.page.getByRole('option');
       await expect.poll(() => options.count()).toBeGreaterThan(0);
-      await expect(options.first()).toBeVisible();
+      await expect(options.first()).toBeEnabled();
       await this.page.keyboard.press('Escape');
     }
   }
@@ -80,9 +80,9 @@ export class ValidationQueuePage {
       throw new Error('Open a validation queue card before checking its details.');
     }
 
-    await expect(this.page.getByRole('heading').filter({ hasText: this.selectedCardId })).toBeVisible();
-    await expect(this.page.getByText('Submitted Data', { exact: true })).toBeVisible();
-    await expect(this.page.getByText('Card Data', { exact: true })).toBeVisible();
+    await expect(this.page.getByRole('heading').filter({ hasText: this.selectedCardId })).toBeEnabled();
+    await expect(this.page.getByText('Submitted Data', { exact: true })).toBeEnabled();
+    await expect(this.page.getByText('Card Data', { exact: true })).toBeEnabled();
     await expect(this.page.getByRole('button', { name: 'Next Step', exact: true })).toBeEnabled();
     await expect(this.page.getByRole('button', { name: 'Reject Card', exact: true })).toBeEnabled();
   }

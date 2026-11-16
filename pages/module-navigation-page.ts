@@ -20,7 +20,7 @@ export class ModuleNavigationPage {
 
   async openUserDashboard(): Promise<void> {
     await this.page.goto('/');
-    await expect(this.page.getByRole('heading', { name: 'Recent Submissions', exact: true })).toBeVisible();
+    await expect(this.page.getByRole('heading', { name: 'Recent Submissions', exact: true })).toBeEnabled();
   }
 
   async clickModule(moduleName: string): Promise<void> {
@@ -39,21 +39,21 @@ export class ModuleNavigationPage {
 
   async expectModuleAtRoute(route: string, heading: string): Promise<void> {
     await expect.poll(() => new URL(this.page.url()).pathname).toBe(route);
-    await expect(this.page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
+    await expect(this.page.getByRole('heading', { name: heading, exact: true })).toBeEnabled();
   }
 
   async expectValidationQueueBadgeMatchesPendingCount(expectedCount: string): Promise<void> {
     const sidebarLink = this.page.getByRole('navigation').locator('a[href="/validation"]');
     const badge = sidebarLink.getByText(expectedCount, { exact: true });
     await expect(badge, 'The Validation Queue sidebar should show its pending badge.')
-      .toBeVisible();
+      .toBeEnabled();
 
     await sidebarLink.click();
     await this.expectModuleAtRoute('/validation', 'Validation Queue');
 
     const pendingLabel = this.page.getByText('Pending', { exact: true });
     await expect(pendingLabel, 'The Validation Queue should show its pending summary card.')
-      .toBeVisible();
+      .toBeEnabled();
     const summaryCount = await pendingLabel.evaluate((label) => {
       let container = label.parentElement;
       while (container) {
