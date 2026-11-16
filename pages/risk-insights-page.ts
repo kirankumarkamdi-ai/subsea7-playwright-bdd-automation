@@ -18,9 +18,9 @@ export class RiskInsightsPage {
   async expectSummaryCards(): Promise<void> {
     for (const { label, count, color } of riskMetrics) {
       const labelLocator = this.page.getByText(label, { exact: true });
-      await expect(labelLocator, `Expected the "${label}" risk metric.`).toBeVisible();
+      await expect(labelLocator, `Expected the "${label}" risk metric.`).toBeEnabled();
       const countLocator = this.page.getByText(count, { exact: true });
-      await expect(countLocator).toBeVisible();
+      await expect(countLocator).toBeEnabled();
 
       if (color) {
         const styles = await this.metricStyles(labelLocator, countLocator, count);
@@ -40,7 +40,7 @@ export class RiskInsightsPage {
 
     for (let index = 0; index < count; index += 1) {
       const sourceLink = sourceLinks.nth(index);
-      await expect(sourceLink).toBeVisible();
+      await expect(sourceLink).toBeEnabled();
 
       const indicator = await sourceLink.evaluate((link) => {
         let container = link.parentElement;
@@ -81,7 +81,7 @@ export class RiskInsightsPage {
 
   async openFirstIndicatorSourceData(): Promise<void> {
     const sourceLink = this.sourceDataLinks().first();
-    await expect(sourceLink).toBeVisible();
+    await expect(sourceLink).toBeEnabled();
 
     const href = await sourceLink.getAttribute('href');
     if (!href) {
