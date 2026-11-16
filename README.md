@@ -101,7 +101,15 @@ Run the sidebar module navigation scenario:
 npm run test:bdd -- --tags @navigation
 ```
 
-It clicks each sidebar module in sequence and verifies the resulting route and page heading.
+It clicks each sidebar module in sequence and verifies the resulting route and page heading. It also checks that the Validation Queue sidebar badge shows the expected pending count and matches the queue summary.
+
+Run the Risk Insights scenarios:
+
+```bash
+npm run test:bdd -- --tags @risk
+```
+
+They verify the risk summary counts and severity styling, check the seven AI-detected leading indicators, and follow a source-data link to its record.
 
 Run the validation queue scenarios:
 

@@ -26,3 +26,8 @@ Feature: Module navigation
     Then the module should open at route "/data-search" with heading "Data Search"
     When I click the "Audit Logs" sidebar module
     Then the module should open at route "/audit-logs" with heading "Audit Logs"
+
+  @navigation @requires-auth
+  Scenario: TC-NAV-02 - Verify Validation Queue notification badge and pending count
+    Given an authenticated session is open on the user dashboard
+    Then the Validation Queue sidebar badge should show "3" and match the pending queue count

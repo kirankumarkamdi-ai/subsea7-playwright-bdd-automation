@@ -41,6 +41,38 @@ export class ModuleNavigationPage {
     await expect.poll(() => new URL(this.page.url()).pathname).toBe(route);
     await expect(this.page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
   }
+
+  async expectValidationQueueBadgeMatchesPendingCount(expectedCount: string): Promise<void> {
+    const sidebarLink = this.page.getByRole('navigation').locator('a[href="/validation"]');
+    const badge = sidebarLink.getByText(expectedCount, { exact: true });
+    await expect(badge, 'The Validation Queue sidebar should show its pending badge.')
+      .toBeVisible();
+
+    await sidebarLink.click();
+    await this.expectModuleAtRoute('/validation', 'Validation Queue');
+
+    const pendingLabel = this.page.getByText('Pending', { exact: true });
+    await expect(pendingLabel, 'The Validation Queue should show its pending summary card.')
+      .toBeVisible();
+    const summaryCount = await pendingLabel.evaluate((label) => {
+      let container = label.parentElement;
+      while (container) {
+        const numericValues = Array.from(container.querySelectorAll<HTMLElement>('*'))
+          .filter((element) => element.children.length === 0)
+          .map((element) => element.textContent?.trim() ?? '')
+          .filter((text) => /^\d+$/.test(text));
+        if (numericValues.length > 0) {
+          return numericValues[0];
+        }
+        container = container.parentElement;
+      }
+
+      throw new Error('Could not find the pending count in the Validation Queue summary card.');
+    });
+
+    expect(summaryCount, 'The sidebar badge should match the queue summary pending count.')
+      .toBe(expectedCount);
+  }
 }
 
 function isModuleName(value: string): value is ModuleName {

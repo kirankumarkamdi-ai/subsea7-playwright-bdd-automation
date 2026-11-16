@@ -4,6 +4,7 @@ import { AdminApprovalPage } from '../pages/admin-approval-page';
 import { HomePage } from '../pages/home-page';
 import { ModuleNavigationPage } from '../pages/module-navigation-page';
 import { ValidationQueuePage } from '../pages/validation-queue-page';
+import { RiskInsightsPage } from '../pages/risk-insights-page';
 
 export class CustomWorld extends World {
   browser!: Browser;
@@ -13,4 +14,5 @@ export class CustomWorld extends World {
   adminApprovalPage!: AdminApprovalPage;
   moduleNavigationPage!: ModuleNavigationPage;
   validationQueuePage!: ValidationQueuePage;
+  riskInsightsPage?: RiskInsightsPage;
 }

@@ -28,3 +28,10 @@ Then(
     await this.moduleNavigationPage.expectModuleAtRoute(route, heading);
   },
 );
+
+Then(
+  'the Validation Queue sidebar badge should show {string} and match the pending queue count',
+  async function (this: CustomWorld, expectedCount: string) {
+    await this.moduleNavigationPage.expectValidationQueueBadgeMatchesPendingCount(expectedCount);
+  },
+);
