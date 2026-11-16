@@ -103,6 +103,14 @@ npm run test:bdd -- --tags @navigation
 
 It clicks each sidebar module in sequence and verifies the resulting route and page heading.
 
+Run the validation queue scenarios:
+
+```bash
+npm run test:bdd -- --tags @validation
+```
+
+They check that the queue counters are numeric and color-coded, exercise the available filter dropdowns, verify card-type/source filtering, and open a pending card for review. Counter totals are checked as live values rather than fixed numbers because they vary with queue activity.
+
 If the scenario reports that the app redirected to an authentication provider, the saved session has expired or is invalid. Run `npm run auth:setup`, complete sign-in and MFA, press Enter in the terminal to overwrite the local session state, and retry.
 
 Run the standalone Playwright example:

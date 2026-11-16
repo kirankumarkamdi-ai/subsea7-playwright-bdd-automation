@@ -2,6 +2,7 @@ import { Given, Then, When } from '@cucumber/cucumber';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { ModuleNavigationPage } from '../pages/module-navigation-page';
+import { ValidationQueuePage } from '../pages/validation-queue-page';
 import { CustomWorld } from '../support/world';
 
 Given('an authenticated session is open on the user dashboard', async function (this: CustomWorld) {
@@ -13,6 +14,7 @@ Given('an authenticated session is open on the user dashboard', async function (
   }
 
   this.moduleNavigationPage = new ModuleNavigationPage(this.page);
+  this.validationQueuePage = new ValidationQueuePage(this.page);
   await this.moduleNavigationPage.openUserDashboard();
 });
 
