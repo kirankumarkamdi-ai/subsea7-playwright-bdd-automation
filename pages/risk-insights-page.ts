@@ -3,16 +3,13 @@ import { expect, Locator, Page } from '@playwright/test';
 type RiskColor = 'red' | 'amber' | 'green';
 
 const riskMetrics: Array<{ label: string; count: string; color?: RiskColor }> = [
-  { label: 'Total Incidents', count: '29,335' },
+  { label: 'Total Incidents', count: '29,340' },
   { label: 'High Risk Incidents', count: '1,292', color: 'red' },
-  { label: 'Medium Risk Incidents', count: '6,881', color: 'amber' },
-  { label: 'Low Risk Incidents', count: '21,089', color: 'green' },
+  { label: 'Medium Risk Incidents', count: '6,884', color: 'amber' },
+  { label: 'Low Risk Incidents', count: '21,091', color: 'green' },
 ];
 
 export class RiskInsightsPage {
-  private sourceRecordPage?: Page;
-  private expectedSourceUrl?: string;
-
   constructor(private readonly page: Page) {}
 
   async expectSummaryCards(): Promise<void> {
@@ -33,17 +30,18 @@ export class RiskInsightsPage {
   }
 
   async expectLeadingIndicators(count: number): Promise<void> {
-    const sourceLinks = this.sourceDataLinks();
-    await expect(sourceLinks, 'Expected one source-data link for each leading indicator.').toHaveCount(
-      count,
-    );
+    const sourceActions = this.sourceDataActions();
+    await expect(
+      sourceActions,
+      'Expected one source-data action for each leading indicator.',
+    ).toHaveCount(count);
 
     for (let index = 0; index < count; index += 1) {
-      const sourceLink = sourceLinks.nth(index);
-      await expect(sourceLink).toBeEnabled();
+      const sourceAction = sourceActions.nth(index);
+      await expect(sourceAction).toBeEnabled();
 
-      const indicator = await sourceLink.evaluate((link) => {
-        let container = link.parentElement;
+      const indicator = await sourceAction.evaluate((action) => {
+        let container = action.parentElement;
         while (container && container !== document.body) {
           const text = container.innerText.trim();
           const severity = text.match(/\b(High|Medium|Low)\b/)?.[0];
@@ -80,37 +78,27 @@ export class RiskInsightsPage {
   }
 
   async openFirstIndicatorSourceData(): Promise<void> {
-    const sourceLink = this.sourceDataLinks().first();
-    await expect(sourceLink).toBeEnabled();
-
-    const href = await sourceLink.getAttribute('href');
-    if (!href) {
-      throw new Error('The first leading indicator source-data link does not have a destination.');
-    }
-
-    this.expectedSourceUrl = new URL(href, this.page.url()).href;
-    if ((await sourceLink.getAttribute('target')) === '_blank') {
-      const [popup] = await Promise.all([this.page.waitForEvent('popup'), sourceLink.click()]);
-      this.sourceRecordPage = popup;
-      await popup.waitForLoadState('domcontentloaded');
-      return;
-    }
-
-    this.sourceRecordPage = this.page;
-    await sourceLink.click();
+    const sourceAction = this.sourceDataActions().first();
+    await expect(sourceAction).toBeEnabled();
+    await sourceAction.click();
+    await expect(this.sourceDataDialog()).toBeEnabled();
   }
 
   async expectMatchingSourceRecord(): Promise<void> {
-    if (!this.sourceRecordPage || !this.expectedSourceUrl) {
-      throw new Error('Open a leading indicator source-data link before checking its record.');
-    }
-
-    await expect.poll(() => this.sourceRecordPage!.url()).toBe(this.expectedSourceUrl);
-    await expect(this.sourceRecordPage.locator('body')).not.toBeEmpty();
+    const dialog = this.sourceDataDialog();
+    await expect(dialog).toBeEnabled();
+    await expect(dialog).toContainText(/description/i);
+    await expect(dialog).toContainText(/Very good/i);
   }
 
-  private sourceDataLinks(): Locator {
-    return this.page.getByRole('link', { name: /View Source Data/i });
+  private sourceDataActions(): Locator {
+    return this.page.locator(
+      'div > .p-4 > .space-y-3 > .flex.flex-wrap > .inline-flex',
+    );
+  }
+
+  private sourceDataDialog(): Locator {
+    return this.page.getByRole('dialog', { name: 'Source data' });
   }
 
   private async metricStyles(

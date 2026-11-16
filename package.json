@@ -8,7 +8,7 @@
     "test:bdd:smoke": "cucumber-js --tags @smoke",
     "test:playwright": "playwright test",
     "auth:setup": "ts-node playwright/authenticate.ts",
-    "codegen": "playwright codegen --target=playwright-test",
+    "codegen": "playwright codegen --target=playwright-test --load-storage=playwright/.auth/user.json",
     "test:report": "playwright show-report reports/playwright-report"
   },
   "devDependencies": {

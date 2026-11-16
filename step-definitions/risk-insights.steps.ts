@@ -27,7 +27,7 @@ When(
 );
 
 Then(
-  'the matching source record should be displayed',
+  'the source data dialog should display the matching record',
   async function (this: CustomWorld) {
     if (!this.riskInsightsPage) {
       throw new Error('The Risk Insights page has not been initialized.');

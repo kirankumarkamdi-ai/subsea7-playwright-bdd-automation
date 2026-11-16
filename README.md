@@ -54,13 +54,13 @@ In the opened browser, complete sign-in and MFA, then press Enter in the termina
 After saving your authenticated session, export `BASE_URL` from your environment and start Codegen with that session:
 
 ```bash
-npm run codegen -- --load-storage=playwright/.auth/user.json "$BASE_URL"
+npm run codegen -- "$BASE_URL"
 ```
 
 Perform the flow in the opened browser. Set the destination URL from your configured environment rather than embedding it in the command. To save the generated Playwright Test code directly to a file, add `--output`:
 
 ```bash
-npm run codegen -- --load-storage=playwright/.auth/user.json --output=playwright-tests/recorded-flow.spec.ts "$BASE_URL"
+npm run codegen -- --output=playwright-tests/recorded-flow.spec.ts "$BASE_URL"
 ```
 
 Review and edit recorded code before running or committing it. Codegen produces Playwright Test code, not Gherkin; for BDD scenarios, translate the recorded actions into a feature and reusable step definitions/page objects. Do not record or commit credentials, MFA codes, or session state.
