@@ -43,13 +43,12 @@ export class ModuleNavigationPage {
   }
 
   async expectValidationQueueBadgeMatchesPendingCount(expectedCount: string): Promise<void> {
+    await this.expectModuleAtRoute('/validation', 'Validation Queue');
+
     const sidebarLink = this.page.getByRole('navigation').locator('a[href="/validation"]');
     const badge = sidebarLink.getByText(expectedCount, { exact: true });
     await expect(badge, 'The Validation Queue sidebar should show its pending badge.')
       .toBeEnabled();
-
-    await sidebarLink.click();
-    await this.expectModuleAtRoute('/validation', 'Validation Queue');
 
     const pendingLabel = this.page.getByText('Pending', { exact: true });
     await expect(pendingLabel, 'The Validation Queue should show its pending summary card.')
