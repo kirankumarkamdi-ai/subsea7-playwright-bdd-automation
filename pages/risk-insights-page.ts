@@ -1,15 +1,17 @@
 import { expect, Locator, Page } from '@playwright/test';
 
-type RiskColor = 'red' | 'amber' | 'green';
+type RiskColor = 'red' | 'amber' | 'green' | 'blue';
 
 const riskMetrics: Array<{ label: string; count: string; color?: RiskColor }> = [
   { label: 'Total Incidents', count: '29,340' },
   { label: 'High Risk Incidents', count: '1,292', color: 'red' },
   { label: 'Medium Risk Incidents', count: '6,884', color: 'amber' },
-  { label: 'Low Risk Incidents', count: '21,091', color: 'green' },
+  { label: 'Low Risk Incidents', count: '21,091', color: 'blue' },
 ];
 
 export class RiskInsightsPage {
+  private firstIndicatorDescription: string | undefined;
+
   constructor(private readonly page: Page) {}
 
   async expectSummaryCards(): Promise<void> {
@@ -80,15 +82,31 @@ export class RiskInsightsPage {
   async openFirstIndicatorSourceData(): Promise<void> {
     const sourceAction = this.sourceDataActions().first();
     await expect(sourceAction).toBeEnabled();
+
+    const indicatorCard = sourceAction.locator('xpath=ancestor::div[contains(@class, "p-4")][1]');
+    const cardText = await indicatorCard.innerText();
+    const cardLines = cardText.split('\n').map((line) => line.trim()).filter(Boolean);
+    const severityIndex = cardLines.findIndex((line) => /^(High|Medium|Low)$/.test(line));
+    const description = severityIndex >= 0 ? cardLines[severityIndex + 1] : undefined;
+    if (!description) {
+      throw new Error('Could not find the first leading indicator description.');
+    }
+
+    this.firstIndicatorDescription = description;
     await sourceAction.click();
     await expect(this.sourceDataDialog()).toBeEnabled();
   }
 
-  async expectMatchingSourceRecord(): Promise<void> {
+  async expectFirstIndicatorDescription(): Promise<void> {
     const dialog = this.sourceDataDialog();
     await expect(dialog).toBeEnabled();
-    await expect(dialog).toContainText(/description/i);
-    await expect(dialog).toContainText(/Very good/i);
+
+    if (!this.firstIndicatorDescription) {
+      throw new Error('The first leading indicator description has not been captured.');
+    }
+
+    await expect(dialog.getByText(this.firstIndicatorDescription, { exact: true }))
+      .toBeVisible();
   }
 
   private sourceDataActions(): Locator {
@@ -119,11 +137,11 @@ export class RiskInsightsPage {
       while (container) {
         const style = getComputedStyle(container);
         if (
-          style.borderTopWidth !== '0px' &&
-          style.borderTopStyle !== 'none' &&
-          style.borderTopColor !== 'rgba(0, 0, 0, 0)'
+          style.borderLeftWidth !== '0px' &&
+          style.borderLeftStyle !== 'none' &&
+          style.borderLeftColor !== 'rgba(0, 0, 0, 0)'
         ) {
-          return style.borderTopColor;
+          return style.borderLeftColor;
         }
         container = container.parentElement;
       }
@@ -150,6 +168,9 @@ function matchesRiskColor(value: string, expected: RiskColor): boolean {
   }
   if (expected === 'amber') {
     return red > green && green > blue;
+  }
+  if (expected === 'blue') {
+    return blue > red && blue > green;
   }
   return green > red && green > blue;
 }

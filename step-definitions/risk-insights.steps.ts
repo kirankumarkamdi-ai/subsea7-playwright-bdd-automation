@@ -27,11 +27,11 @@ When(
 );
 
 Then(
-  'the source data dialog should display the matching record',
+  "the source data dialog should display the first indicator's description",
   async function (this: CustomWorld) {
     if (!this.riskInsightsPage) {
       throw new Error('The Risk Insights page has not been initialized.');
     }
-    await this.riskInsightsPage.expectMatchingSourceRecord();
+    await this.riskInsightsPage.expectFirstIndicatorDescription();
   },
 );
