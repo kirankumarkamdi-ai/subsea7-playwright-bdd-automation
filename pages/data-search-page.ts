@@ -58,20 +58,21 @@ export class DataSearchPage {
     const search = this.page.getByRole('textbox', { name: 'Search by location' });
     await expect(search).toBeEnabled();
     await search.fill(location);
+    await expect(search).toHaveValue(location);
+    await expect(this.recordCount()).toBeEnabled();
 
-    if (location.toLowerCase() === 'mumbai') {
-      const locationCell = this.page.getByRole('cell', { name: 'Mumbai Office', exact: true }).first();
-      await expect(locationCell).toBeEnabled();
-      await locationCell.click();
+    const matchingRows = this.tableRows().filter({ hasText: location });
+    await expect.poll(async () => {
+      if ((await matchingRows.count()) > 0) {
+        return true;
+      }
 
-      const detailsDialog = this.page.getByRole('dialog', {
-        name: 'HSSEQ Card Details Print View',
-      });
-      await expect(detailsDialog).toBeEnabled();
-      await this.page.getByRole('button', { name: 'Close', exact: true }).click();
-    }
-
-    await this.recordCount().waitFor({ state: 'visible' });
+      const countText = await this.recordCount().innerText();
+      const match = countText.replace(/,/g, '').match(/^\s*(\d+)\+?\s+records found\s*$/i);
+      return match !== null && Number(match[1]) === 0;
+    }, {
+      message: `Wait for Data Search results matching "${location}" or a zero-result count.`,
+    }).toBe(true);
   }
 
   async configureTableFilters(): Promise<void> {
