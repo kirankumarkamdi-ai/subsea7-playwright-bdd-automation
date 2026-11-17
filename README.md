@@ -33,7 +33,7 @@ npm install
 npx playwright install chromium
 ```
 
-Copy `.env.example` to `.env` and set `BASE_URL` to your authorized test environment. Keep secrets out of source control; `.env` is ignored by Git.
+Create a local `.env` file and set `BASE_URL` to your authorized test environment. Keep `.env` out of source control; it is ignored by Git.
 
 ```dotenv
 BASE_URL=https://hsseqcards-uat.subsea7.com
@@ -118,6 +118,14 @@ npm run test:bdd -- --tags @validation
 ```
 
 They check that the queue counters are numeric and color-coded, exercise the available filter dropdowns, verify card-type/source filtering, and open a pending card for review. Counter totals are checked as live values rather than fixed numbers because they vary with queue activity.
+
+Run the Data Search scenarios:
+
+```bash
+npm run test:bdd -- --tags @data-search
+```
+
+They exercise the Synergi global filters, location search and result-count consistency, Excel export and download, and card-type/status options and badge colors.
 
 If the scenario reports that the app redirected to an authentication provider, the saved session has expired or is invalid. Run `npm run auth:setup`, complete sign-in and MFA, press Enter in the terminal to overwrite the local session state, and retry.
 
