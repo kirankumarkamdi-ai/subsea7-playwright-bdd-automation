@@ -5,7 +5,7 @@ import { AdminApprovalPage } from '../pages/admin-approval-page';
 import { CustomWorld } from '../support/world';
 
 Given('a worksite_admin authenticated session has been configured', function (this: CustomWorld) {
-  const authStatePath = resolve('playwright/.auth/user.json');
+  const authStatePath = resolve(__dirname, '../playwright/.auth/user.json');
   if (!existsSync(authStatePath)) {
     throw new Error(
       'No saved browser session was found. Run `npm run auth:setup` and sign in as worksite_admin before this scenario.',

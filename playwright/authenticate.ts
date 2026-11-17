@@ -1,5 +1,4 @@
-import 'dotenv/config';
-import { chromium } from '@playwright/test';
+import { chromium, expect } from '@playwright/test';
 import { mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { createInterface } from 'node:readline/promises';
@@ -25,6 +24,11 @@ async function saveAuthenticatedSession(): Promise<void> {
     } finally {
       terminal.close();
     }
+
+    await expect(
+      page.getByRole('heading', { name: 'Recent Submissions', exact: true }),
+      'Sign-in did not return to the application dashboard; the existing auth state was not replaced.',
+    ).toBeVisible({ timeout: 15_000 });
 
     await mkdir(dirname(authStatePath), { recursive: true });
     await context.storageState({ path: authStatePath });

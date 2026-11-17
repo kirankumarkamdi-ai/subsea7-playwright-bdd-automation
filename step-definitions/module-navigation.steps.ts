@@ -6,7 +6,7 @@ import { ValidationQueuePage } from '../pages/validation-queue-page';
 import { CustomWorld } from '../support/world';
 
 Given('an authenticated session is open on the user dashboard', async function (this: CustomWorld) {
-  const authStatePath = resolve('playwright/.auth/user.json');
+  const authStatePath = resolve(__dirname, '../playwright/.auth/user.json');
   if (!existsSync(authStatePath)) {
     throw new Error(
       'No saved browser session was found. Run `npm run auth:setup`, sign in, and retry this scenario.',

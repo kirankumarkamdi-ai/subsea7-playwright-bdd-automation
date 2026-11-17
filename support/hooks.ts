@@ -11,7 +11,7 @@ setDefaultTimeout(240_000);
 
 Before(async function (this: CustomWorld) {
   this.browser = await chromium.launch({ headless: process.env.HEADLESS !== 'false' });
-  const authStatePath = resolve('playwright/.auth/user.json');
+  const authStatePath = resolve(__dirname, '../playwright/.auth/user.json');
   this.context = await this.browser.newContext({
     baseURL: getBaseUrl(),
     storageState: existsSync(authStatePath) ? authStatePath : undefined,
