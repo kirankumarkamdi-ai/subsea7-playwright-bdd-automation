@@ -1,7 +1,47 @@
 import { expect, Locator, Page } from '@playwright/test';
 
 export class DashboardSubmissionsPage {
+  private initialTableRows?: string[];
+  private initialPaginationState?: string[];
+
   constructor(private readonly page: Page) {}
+
+  async toggleColumnsOffAndRestore(): Promise<void> {
+    await expect(
+      this.page.getByRole('heading', { name: 'Recent Submissions', exact: true }),
+    ).toBeVisible();
+    const table = this.page.getByRole('table');
+    await expect(table).toBeVisible();
+
+    this.initialTableRows = await table.getByRole('row').allInnerTexts();
+    this.initialPaginationState = await this.paginationState();
+    const columns = ['Date', 'Submitter', 'Location'];
+
+    for (const column of columns) {
+      await this.setColumnVisibility(column, true);
+      await this.setColumnVisibility(column, false);
+      await expect(this.columnHeader(column)).toBeHidden();
+
+      await this.openColumnsMenu();
+      await expect(this.columnOption(column)).toHaveAttribute('aria-checked', 'false');
+      await this.page.keyboard.press('Escape');
+
+      await this.setColumnVisibility(column, true);
+      await expect(this.columnHeader(column)).toBeVisible();
+    }
+  }
+
+  async expectTableLayoutStable(): Promise<void> {
+    if (!this.initialTableRows || !this.initialPaginationState) {
+      throw new Error('Toggle the Recent Submissions columns before checking table layout.');
+    }
+
+    const table = this.page.getByRole('table');
+    await expect(table.getByRole('row')).toHaveCount(this.initialTableRows.length);
+    expect(await table.getByRole('row').allInnerTexts()).toEqual(this.initialTableRows);
+    expect(await this.paginationState()).toEqual(this.initialPaginationState);
+    await this.verifyHorizontalScrollWhenContentOverflows(table);
+  }
 
   async expectHeaderAndNewCardAction(): Promise<void> {
     const greeting = this.page.getByRole('heading', { name: /^Welcome,\s+\S.+$/ });
@@ -139,6 +179,92 @@ export class DashboardSubmissionsPage {
       .toBeVisible();
     await option.click();
     await expect(filter).toContainText(optionName);
+  }
+
+  private async setColumnVisibility(column: string, visible: boolean): Promise<void> {
+    await this.openColumnsMenu();
+    const option = this.columnOption(column);
+    await expect(option, `Expected "${column}" in the Columns menu.`).toBeVisible();
+    const checked = await option.getAttribute('aria-checked');
+    if (checked !== 'true' && checked !== 'false') {
+      throw new Error(`The "${column}" Columns menu item has no valid checked state.`);
+    }
+
+    if ((checked === 'true') !== visible) {
+      await option.click();
+    }
+    await this.page.keyboard.press('Escape');
+    if (visible) {
+      await expect(this.columnHeader(column)).toBeVisible();
+    } else {
+      await expect(this.columnHeader(column)).toBeHidden();
+    }
+  }
+
+  private async openColumnsMenu(): Promise<void> {
+    const columnsMenu = this.page.getByRole('menu', { name: 'Columns' });
+    await expect(columnsMenu).toBeVisible();
+    await columnsMenu.click();
+  }
+
+  private columnOption(column: string): Locator {
+    return this.page.getByRole('menuitemcheckbox', { name: column, exact: true });
+  }
+
+  private columnHeader(column: string): Locator {
+    return this.page
+      .getByRole('table')
+      .getByRole('row')
+      .first()
+      .getByText(column, { exact: true })
+      .first();
+  }
+
+  private async paginationState(): Promise<string[]> {
+    return this.page
+      .locator(
+        'button[aria-label*="page" i], button[aria-label*="next" i], button[aria-label*="previous" i]',
+      )
+      .evaluateAll((buttons) =>
+        buttons.map((button) =>
+          [
+            button.getAttribute('aria-label') ?? '',
+            button.textContent?.trim() ?? '',
+            (button as HTMLButtonElement).disabled,
+          ].join('|'),
+        ),
+      );
+  }
+
+  private async verifyHorizontalScrollWhenContentOverflows(table: Locator): Promise<void> {
+    const scrollCheck = await table.evaluate((tableElement) => {
+      let candidate = tableElement.parentElement;
+      while (candidate) {
+        const overflowX = getComputedStyle(candidate).overflowX;
+        if (
+          (overflowX === 'auto' || overflowX === 'scroll') &&
+          candidate.scrollWidth > candidate.clientWidth
+        ) {
+          const previousScrollLeft = candidate.scrollLeft;
+          candidate.scrollLeft = candidate.scrollWidth;
+          const reachedRight = candidate.scrollLeft + candidate.clientWidth >= candidate.scrollWidth - 1;
+          candidate.scrollLeft = 0;
+          const returnedToLeft = candidate.scrollLeft === 0;
+          candidate.scrollLeft = previousScrollLeft;
+          return { hasOverflow: true, works: reachedRight && returnedToLeft };
+        }
+        candidate = candidate.parentElement;
+      }
+
+      return { hasOverflow: false, works: true };
+    });
+
+    if (scrollCheck.hasOverflow) {
+      expect(
+        scrollCheck.works,
+        'The Recent Submissions container should scroll horizontally in both directions.',
+      ).toBe(true);
+    }
   }
 
   private async waitForGridResponse(): Promise<void> {

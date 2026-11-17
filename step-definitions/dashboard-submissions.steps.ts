@@ -28,6 +28,20 @@ When(
   },
 );
 
+When(
+  'I toggle off and restore the Date, Submitter, and Location columns',
+  async function (this: CustomWorld) {
+    await dashboardSubmissionsPage(this).toggleColumnsOffAndRestore();
+  },
+);
+
+Then(
+  'the Recent Submissions table should preserve its rows, pagination, and horizontal scrolling',
+  async function (this: CustomWorld) {
+    await dashboardSubmissionsPage(this).expectTableLayoutStable();
+  },
+);
+
 Then(
   'the recent submissions grid should show matching results or a clean empty state',
   async function (this: CustomWorld) {

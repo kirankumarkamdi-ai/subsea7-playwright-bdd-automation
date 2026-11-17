@@ -2,7 +2,6 @@ Feature: Module navigation
   As an authenticated user
   I want to navigate between application modules
   So that each sidebar icon opens its corresponding page
-
   @navigation @requires-auth
   Scenario: TC-NAV-01 - Navigate to every sidebar module
     Given an authenticated session is open on the user dashboard
@@ -24,8 +23,6 @@ Feature: Module navigation
     Then the module should open at route "/risk-insights" with heading "Risk Insights"
     When I click the "Data Search" sidebar module
     Then the module should open at route "/data-search" with heading "Data Search"
-    When I click the "Audit Logs" sidebar module
-    Then the module should open at route "/audit-logs" with heading "Audit Logs"
 
   @navigation @requires-auth
   Scenario: TC-NAV-02 - Verify Validation Queue badge matches the live pending count

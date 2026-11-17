@@ -14,3 +14,9 @@ Feature: User Dashboard recent submissions
     When I filter recent submissions by card type "Intervention" and status "Processing"
     And I search recent submissions by location "3rd Party Premises"
     Then the recent submissions grid should show matching results or a clean empty state
+
+  @dashboard @requires-auth
+  Scenario: TC-COL-01 - Customize Recent Submissions columns and preserve table layout
+    Given an authenticated session is open on the user dashboard
+    When I toggle off and restore the Date, Submitter, and Location columns
+    Then the Recent Submissions table should preserve its rows, pagination, and horizontal scrolling
