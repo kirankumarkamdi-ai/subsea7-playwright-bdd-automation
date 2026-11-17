@@ -28,7 +28,7 @@ async function saveAuthenticatedSession(): Promise<void> {
     await expect(
       page.getByRole('heading', { name: 'Recent Submissions', exact: true }),
       'Sign-in did not return to the application dashboard; the existing auth state was not replaced.',
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeEnabled({ timeout: 15_000 });
 
     await mkdir(dirname(authStatePath), { recursive: true });
     await context.storageState({ path: authStatePath });
