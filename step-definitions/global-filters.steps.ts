@@ -8,7 +8,7 @@ function globalFiltersPage(world: CustomWorld): SynergiGlobalFiltersPage {
 }
 
 When(
-  'I select the following global filters:',
+  'I select these Synergi global filters:',
   async function (this: CustomWorld, table: DataTable) {
     const selections = table.rowsHash() as Record<
       'Country' | 'Shore' | 'Worksite' | 'Client' | 'Project',

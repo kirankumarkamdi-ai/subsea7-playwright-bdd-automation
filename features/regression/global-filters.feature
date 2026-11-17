@@ -6,7 +6,7 @@ Feature: Synergi global filters
   @filters @requires-auth
   Scenario: TC-FLT-01 - Select options across all Synergi global filters
     Given an authenticated session is open on the user dashboard
-    When I select the following global filters:
+    When I select these Synergi global filters:
       | Country  | Australia             |
       | Shore    | Onshore               |
       | Worksite | 3rd Party Premises    |
