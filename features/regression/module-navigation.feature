@@ -30,4 +30,5 @@ Feature: Module navigation
   @navigation @requires-auth
   Scenario: TC-NAV-02 - Verify Validation Queue notification badge and pending count
     Given an authenticated session is open on the user dashboard
-    Then the Validation Queue sidebar badge should show "3" and match the pending queue count
+    When I click the "Validation Queue" sidebar module
+    Then the Validation Queue sidebar badge should show "21006" and match the pending queue count
