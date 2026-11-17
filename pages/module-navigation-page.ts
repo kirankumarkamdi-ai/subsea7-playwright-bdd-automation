@@ -1,4 +1,4 @@
-import { expect, Page } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
 
 const modules = {
   'User Dashboard': '/',
@@ -16,6 +16,8 @@ const modules = {
 type ModuleName = keyof typeof modules;
 
 export class ModuleNavigationPage {
+  private validationQueueBadgeCount?: string;
+
   constructor(private readonly page: Page) {}
 
   async openUserDashboard(): Promise<void> {
@@ -34,6 +36,12 @@ export class ModuleNavigationPage {
       .getByRole('navigation')
       .locator(`a[href="${route}"]`);
     await expect(sidebarLink, `Expected one sidebar link for ${moduleName} at ${route}.`).toHaveCount(1);
+    if (moduleName === 'Validation Queue') {
+      await expect.poll(() => this.readValidationQueueSidebarCount(sidebarLink), {
+        message: 'Wait for the Validation Queue sidebar badge to load.',
+      }).toMatch(/^\d+$/);
+      this.validationQueueBadgeCount = await this.readValidationQueueSidebarCount(sidebarLink);
+    }
     await sidebarLink.click();
   }
 
@@ -42,35 +50,61 @@ export class ModuleNavigationPage {
     await expect(this.page.getByRole('heading', { name: heading, exact: true })).toBeEnabled();
   }
 
-  async expectValidationQueueBadgeMatchesPendingCount(expectedCount: string): Promise<void> {
+  async expectValidationQueueBadgeMatchesPendingCount(): Promise<void> {
     await this.expectModuleAtRoute('/validation', 'Validation Queue');
 
-    const sidebarLink = this.page.getByRole('navigation').locator('a[href="/validation"]');
-    const badge = sidebarLink.getByText(expectedCount, { exact: true });
-    await expect(badge, 'The Validation Queue sidebar should show its pending badge.')
-      .toBeEnabled();
+    if (!this.validationQueueBadgeCount) {
+      throw new Error('Capture the Validation Queue sidebar badge before opening the queue.');
+    }
 
-    const pendingLabel = this.page.getByText('Pending', { exact: true });
+    const pendingLabel = this.page.locator('p').getByText('Pending', { exact: true });
     await expect(pendingLabel, 'The Validation Queue should show its pending summary card.')
       .toBeEnabled();
-    const summaryCount = await pendingLabel.evaluate((label) => {
-      let container = label.parentElement;
-      while (container) {
-        const numericValues = Array.from(container.querySelectorAll<HTMLElement>('*'))
+    const readPendingCount = () =>
+      pendingLabel.evaluate((label) => {
+        let container = label.parentElement;
+        while (container) {
+          const numericValues = Array.from(container.querySelectorAll<HTMLElement>('*'))
+            .filter((element) => element.children.length === 0)
+            .map((element) => element.textContent?.trim() ?? '')
+            .filter((text) => /^\d[\d,]*$/.test(text));
+          if (numericValues.length > 0) {
+            return numericValues[0].replace(/,/g, '');
+          }
+          container = container.parentElement;
+        }
+
+        return '';
+      });
+    await expect.poll(readPendingCount, {
+      message: 'Wait for the Validation Queue pending summary count to load.',
+    }).toMatch(/^\d+$/);
+    const summaryCount = await readPendingCount();
+
+    expect(
+      this.validationQueueBadgeCount,
+      'The sidebar badge should match the live pending queue count.',
+    )
+      .toBe(summaryCount);
+  }
+
+  private async readValidationQueueSidebarCount(sidebarLink: Locator): Promise<string> {
+    const count = await sidebarLink.evaluate((link) => {
+      let item: Element | null = link;
+      while (item) {
+        const value = Array.from(item.querySelectorAll<HTMLElement>('*'))
           .filter((element) => element.children.length === 0)
           .map((element) => element.textContent?.trim() ?? '')
-          .filter((text) => /^\d+$/.test(text));
-        if (numericValues.length > 0) {
-          return numericValues[0];
+          .find((text) => /^\d[\d,]*$/.test(text));
+        if (value) {
+          return value.replace(/,/g, '');
         }
-        container = container.parentElement;
+        item = item.parentElement;
       }
-
-      throw new Error('Could not find the pending count in the Validation Queue summary card.');
+      return '';
     });
 
-    expect(summaryCount, 'The sidebar badge should match the queue summary pending count.')
-      .toBe(expectedCount);
+    return count;
   }
 }
 

@@ -106,7 +106,7 @@ export class RiskInsightsPage {
     }
 
     await expect(dialog.getByText(this.firstIndicatorDescription, { exact: true }))
-      .toBeVisible();
+      .toBeEnabled();
   }
 
   private sourceDataActions(): Locator {

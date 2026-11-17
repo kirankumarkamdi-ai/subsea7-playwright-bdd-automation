@@ -28,7 +28,7 @@ Feature: Module navigation
     Then the module should open at route "/audit-logs" with heading "Audit Logs"
 
   @navigation @requires-auth
-  Scenario: TC-NAV-02 - Verify Validation Queue notification badge and pending count
+  Scenario: TC-NAV-02 - Verify Validation Queue badge matches the live pending count
     Given an authenticated session is open on the user dashboard
     When I click the "Validation Queue" sidebar module
-    Then the Validation Queue sidebar badge should show "21006" and match the pending queue count
+    Then the Validation Queue sidebar badge should match the pending queue count

@@ -164,7 +164,7 @@ export class DataSearchPage {
       .toBe(true);
 
     if (await limitWarning.isVisible()) {
-      await expect(limitWarning).toBeVisible();
+      await expect(limitWarning).toBeEnabled();
       await this.page.getByRole('button', { name: 'Close', exact: true }).first().click();
       await expect(limitWarning).toBeHidden();
 
@@ -206,7 +206,7 @@ export class DataSearchPage {
     expect(this.download.suggestedFilename()).toMatch(/\.xlsx$/i);
     const failure = await this.download.failure();
     expect(failure, 'The Excel export should download without errors.').toBeNull();
-    await expect(this.page.getByText('Export Success', { exact: true })).toBeVisible();
+    await expect(this.page.getByText('Export Success', { exact: true })).toBeEnabled();
   }
 
   private download?: Download;

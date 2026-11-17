@@ -127,6 +127,15 @@ npm run test:bdd -- --tags @data-search
 
 They exercise the Synergi global filters, location search and result-count consistency, Excel export and download, and card-type/status options and badge colors.
 
+Run all authenticated scenarios or only the admin scenarios:
+
+```bash
+npm run test:bdd:requires-auth
+npm run test:bdd:admin
+```
+
+The admin scenarios require a saved `worksite_admin` browser session.
+
 If the scenario reports that the app redirected to an authentication provider, the saved session has expired or is invalid. Run `npm run auth:setup`, complete sign-in and MFA, press Enter in the terminal to overwrite the local session state, and retry.
 
 Run the standalone Playwright example:
@@ -135,7 +144,7 @@ Run the standalone Playwright example:
 npm run test:playwright
 ```
 
-Cucumber's HTML report is written to `reports/cucumber-report.html`. Playwright's HTML report is written to `reports/playwright-report/`; open it with:
+Each Cucumber run saves a uniquely named report in `reports/`, including the run timestamp and selected test name or tag, so later runs do not overwrite earlier evidence. The report automatically opens in Google Chrome after execution, including when a scenario fails. This automatic opening is configured for macOS. Playwright's HTML report is written to `reports/playwright-report/`; open it with:
 
 ```bash
 npm run test:report
