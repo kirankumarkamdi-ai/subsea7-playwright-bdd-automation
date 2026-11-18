@@ -30,9 +30,20 @@ When(
   },
 );
 
+When(
+  'I complete the five-step manual submission and verify progress and data retention',
+  async function (this: CustomWorld) {
+    await ingestionPage(this).completeManualObservationCardWithProgressAndNavigation();
+  },
+);
+
 Then(
   'the manual card submission confirmation should be displayed',
   async function (this: CustomWorld) {
     await ingestionPage(this).expectManualSubmissionSuccess();
   },
 );
+
+Then('the manual card submission should be confirmed', async function (this: CustomWorld) {
+  await ingestionPage(this).expectManualSubmissionComplete();
+});

@@ -12,6 +12,7 @@ import { MyHistoryPage } from '../pages/my-history-page';
 import { DashboardSubmissionsPage } from '../pages/dashboard-submissions-page';
 import { AuditBrandingPage } from '../pages/audit-branding-page';
 import { Luna7Page } from '../pages/luna7-page';
+import { OperationalDashboardPage } from '../pages/operational-dashboard-page';
 
 export class CustomWorld extends World {
   browser!: Browser;
@@ -29,4 +30,5 @@ export class CustomWorld extends World {
   dashboardSubmissionsPage?: DashboardSubmissionsPage;
   auditBrandingPage?: AuditBrandingPage;
   luna7Page?: Luna7Page;
+  operationalDashboardPage?: OperationalDashboardPage;
 }
