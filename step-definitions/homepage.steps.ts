@@ -1,11 +1,12 @@
 import { Given, Then } from '@cucumber/cucumber';
 import { expect } from '@playwright/test';
 import { HomePage } from '../pages/home-page';
+import { getBaseUrl } from '../support/environment';
 import { CustomWorld } from '../support/world';
 
 Given('I open the home page', async function (this: CustomWorld) {
   this.homePage = new HomePage(this.page);
-  await this.homePage.open(process.env.BASE_URL || 'https://example.com');
+  await this.homePage.open(getBaseUrl());
 });
 
 Then('the page title should contain {string}', async function (this: CustomWorld, expectedText: string) {

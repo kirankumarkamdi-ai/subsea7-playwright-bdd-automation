@@ -4,11 +4,13 @@
   "private": true,
   "description": "Playwright and Cucumber BDD automation starter",
   "scripts": {
-    "test:bdd": "cucumber-js",
-    "test:bdd:smoke": "cucumber-js --tags @smoke",
+    "test:bdd": "node scripts/run-bdd.js",
+    "test:bdd:smoke": "node scripts/run-bdd.js --tags @smoke",
+    "test:bdd:requires-auth": "node scripts/run-bdd.js --tags @requires-auth",
+    "test:bdd:admin": "node scripts/run-bdd.js --tags @admin",
     "test:playwright": "playwright test",
     "auth:setup": "ts-node playwright/authenticate.ts",
-    "codegen": "playwright codegen --target=playwright-test",
+    "codegen": "playwright codegen --target=playwright-test --load-storage=playwright/.auth/user.json",
     "test:report": "playwright show-report reports/playwright-report"
   },
   "devDependencies": {

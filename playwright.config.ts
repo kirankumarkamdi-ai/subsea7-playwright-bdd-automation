@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
