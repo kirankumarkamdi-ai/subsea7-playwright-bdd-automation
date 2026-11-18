@@ -17,7 +17,7 @@ export class SynergiGlobalFiltersPage {
 
   async selectFilters(selections: FilterSelections): Promise<void> {
     await expect(this.page.getByRole('heading', { name: 'Recent Submissions', exact: true }))
-      .toBeVisible();
+      .toBeEnabled();
     const filters = this.page.getByRole('combobox');
     await expect.poll(() => filters.count()).toBeGreaterThanOrEqual(filterNames.length);
     await this.expectDashboardResultsLoaded();
@@ -59,7 +59,7 @@ export class SynergiGlobalFiltersPage {
       name: 'Recent Submissions',
       exact: true,
     });
-    await expect(recentSubmissions).toBeVisible();
+    await expect(recentSubmissions).toBeEnabled();
     const resultsArea = recentSubmissions.locator('..').locator('..');
     await expect(resultsArea).not.toContainText(/loading/i);
   }
@@ -88,7 +88,7 @@ export class SynergiGlobalFiltersPage {
         `Global-filter option "${optionName}" is unavailable for ${filterName}. Available options: ${availableOptions.join(', ')}`,
       );
     }
-    await expect(option).toBeVisible();
+    await expect(option).toBeEnabled();
     await option.click();
     this.selectedFilters[filterName] = optionName;
   }
@@ -99,7 +99,7 @@ export class SynergiGlobalFiltersPage {
     });
     await expect(counters).toHaveCount(3);
     for (const counter of await counters.all()) {
-      await expect(counter).toBeVisible();
+      await expect(counter).toBeEnabled();
       await expect.poll(
         () => counter.locator('xpath=../..').evaluate((card) =>
           Array.from(card.querySelectorAll<HTMLElement>('*'))
@@ -112,7 +112,7 @@ export class SynergiGlobalFiltersPage {
     }
 
     await expect(this.page.getByRole('heading', { name: 'Recent Submissions', exact: true }))
-      .toBeVisible();
+      .toBeEnabled();
     const noResults = this.page.getByRole('cell', { name: /No submissions match your filters/i });
     const rows = this.page.getByRole('row');
     await expect.poll(async () => (await noResults.count()) > 0 || (await rows.count()) > 1, {

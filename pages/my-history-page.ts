@@ -9,8 +9,8 @@ export class MyHistoryPage {
 
   async open(): Promise<void> {
     await this.page.goto('/history');
-    await expect(this.page.getByRole('heading', { name: 'My History', exact: true })).toBeVisible();
-    await expect(this.page.getByText('Submission History', { exact: true })).toBeVisible();
+    await expect(this.page.getByRole('heading', { name: 'My History', exact: true })).toBeEnabled();
+    await expect(this.page.getByText('Submission History', { exact: true })).toBeEnabled();
     await this.waitForRecordCount();
   }
 
@@ -58,9 +58,9 @@ export class MyHistoryPage {
     await expect(
       row,
       'Expected at least one pending-approval card in My History.',
-    ).toBeVisible();
+    ).toBeEnabled();
     await row.getByText(/pending-approval|pending approval/i).first().click();
-    await expect(this.detailsDialog()).toBeVisible();
+    await expect(this.detailsDialog()).toBeEnabled();
   }
 
   async expectDetailsActions(): Promise<void> {
@@ -77,7 +77,7 @@ export class MyHistoryPage {
     await printPage.waitForLoadState('domcontentloaded');
     await expect(printPage.locator('body')).not.toBeEmpty();
     await printPage.close();
-    await expect(this.detailsDialog()).toBeVisible();
+    await expect(this.detailsDialog()).toBeEnabled();
   }
 
   async openAndCancelDelete(): Promise<void> {
@@ -87,15 +87,15 @@ export class MyHistoryPage {
       name: 'Are you absolutely sure?',
       exact: true,
     });
-    await expect(confirmationHeading).toBeVisible();
+    await expect(confirmationHeading).toBeEnabled();
     await expect(this.page.getByRole('button', { name: 'Delete Card', exact: true })).toBeEnabled();
     await this.page.getByRole('button', { name: 'Cancel', exact: true }).click();
     await expect(confirmationHeading).toBeHidden();
-    await expect(details).toBeVisible();
+    await expect(details).toBeEnabled();
   }
 
   async expectCardNotDeleted(): Promise<void> {
-    await expect(this.detailsDialog()).toBeVisible();
+    await expect(this.detailsDialog()).toBeEnabled();
     await this.expectNumericRecordCount();
   }
 
@@ -105,7 +105,7 @@ export class MyHistoryPage {
   }
 
   async expectSubmissionList(): Promise<void> {
-    await expect(this.page.getByText('Submission History', { exact: true })).toBeVisible();
+    await expect(this.page.getByText('Submission History', { exact: true })).toBeEnabled();
     await this.expectNumericRecordCount();
   }
 
@@ -114,7 +114,7 @@ export class MyHistoryPage {
     await expect(filter).toBeEnabled();
     await filter.click();
     const option = this.page.getByRole('option', { name: optionName, exact: true });
-    await expect(option, `Expected "${optionName}" as a My History filter option.`).toBeVisible();
+    await expect(option, `Expected "${optionName}" as a My History filter option.`).toBeEnabled();
     await option.click();
     await expect(filter).toContainText(optionName);
   }

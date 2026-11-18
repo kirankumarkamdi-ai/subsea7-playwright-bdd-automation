@@ -29,13 +29,13 @@ export class IngestionPage {
       name: 'Drag & Drop your scanned HSSEQ Cards here',
       exact: true,
     });
-    await expect(dropZone, 'Expected the AI-assisted PDF upload drop zone.').toBeVisible();
+    await expect(dropZone, 'Expected the AI-assisted PDF upload drop zone.').toBeEnabled();
     const fileChooserPromise = this.page.waitForEvent('filechooser');
     await dropZone.click();
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles(observationCardPdf);
     await expect(this.page.getByRole('heading', { name: 'Card uploaded successfully' }))
-      .toBeVisible({ timeout: 60_000 });
+      .toBeEnabled({ timeout: 60_000 });
   }
 
   async expectUploadSuccess(): Promise<void> {

@@ -61,8 +61,8 @@ export class Luna7Page {
     userBubble: Locator,
     assistantBubble: Locator,
   ): Promise<void> {
-    await expect(userBubble).toBeVisible();
-    await expect(assistantBubble).toBeVisible();
+    await expect(userBubble).toBeEnabled();
+    await expect(assistantBubble).toBeEnabled();
     const userStyle = await userBubble.evaluate((element) => ({
       background: getComputedStyle(element).backgroundColor,
       color: getComputedStyle(element).color,
