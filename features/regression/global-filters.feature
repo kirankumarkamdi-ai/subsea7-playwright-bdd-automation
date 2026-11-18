@@ -1,3 +1,4 @@
+@regression
 Feature: Synergi global filters
   As an authenticated user
   I want to filter dashboard data by global scope

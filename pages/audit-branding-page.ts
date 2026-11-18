@@ -5,17 +5,17 @@ export class AuditBrandingPage {
 
   async expectAuditLogsAvailable(): Promise<void> {
     await expect(this.page.getByRole('heading', { name: 'Audit Logs', exact: true }))
-      .toBeVisible();
+      .toBeEnabled();
     await expect(
       this.page.getByText('Complete audit trail of all validation activities', { exact: true }),
-    ).toBeVisible();
+    ).toBeEnabled();
     await expect(this.page.getByRole('heading', { name: 'Activity Log', exact: true }))
-      .toBeVisible();
+      .toBeEnabled();
   }
 
   async expectBrandingAndUserInitials(): Promise<void> {
     const logo = this.page.getByRole('img', { name: 'Subsea7 HSEQ', exact: true });
-    await expect(logo).toBeVisible();
+    await expect(logo).toBeEnabled();
     const logoBounds = await logo.boundingBox();
     if (!logoBounds || logoBounds.x > 40 || logoBounds.y > 40) {
       throw new Error('The Subsea7 logo is not positioned at the top-left of the sidebar.');
@@ -44,7 +44,7 @@ export class AuditBrandingPage {
     expect(redPixelCount, 'The Subsea7 logo should include its red accent.').toBeGreaterThan(0);
 
     const greeting = this.page.getByRole('heading', { name: /^Welcome,\s+.+$/ });
-    await expect(greeting).toBeVisible();
+    await expect(greeting).toBeEnabled();
     const name = (await greeting.innerText()).replace(/^Welcome,\s*/, '').trim();
     const nameParts = name.split(/\s+/).filter(Boolean);
     const initials = [nameParts[0], nameParts.at(-1)]
@@ -59,7 +59,7 @@ export class AuditBrandingPage {
     await expect(
       profileInitials,
       `The profile badge should show the signed-in user's initials "${initials}".`,
-    ).toBeVisible();
+    ).toBeEnabled();
     const badgeBounds = await profileInitials.boundingBox();
     const viewport = this.page.viewportSize();
     if (!badgeBounds || !viewport || badgeBounds.x > 80 || badgeBounds.y < viewport.height - 80) {

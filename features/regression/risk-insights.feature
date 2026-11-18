@@ -1,3 +1,4 @@
+@regression
 Feature: Risk Insights
   As an authenticated user
   I want to review risk metrics and AI-detected leading indicators

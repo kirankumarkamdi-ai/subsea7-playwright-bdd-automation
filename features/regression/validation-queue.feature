@@ -1,3 +1,4 @@
+@regression
 Feature: Validation queue
   As an authenticated user
   I want to inspect and filter cards awaiting validation

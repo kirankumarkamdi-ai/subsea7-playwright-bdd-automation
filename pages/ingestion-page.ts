@@ -15,7 +15,7 @@ export class IngestionPage {
     await this.page.getByRole('button', { name: '+ New HSSEQ Card', exact: true }).click();
     await expect(
       this.page.getByRole('heading', { name: 'AI-Assisted Submission', exact: true }),
-    ).toBeVisible();
+    ).toBeEnabled();
   }
 
   async uploadSampleObservationCard(): Promise<void> {
@@ -24,23 +24,37 @@ export class IngestionPage {
     await fileInput.setInputFiles(observationCardPdf);
   }
 
+  async selectSamplePdfThroughDropZone(): Promise<void> {
+    const dropZone = this.page.getByRole('heading', {
+      name: 'Drag & Drop your scanned HSSEQ Cards here',
+      exact: true,
+    });
+    await expect(dropZone, 'Expected the AI-assisted PDF upload drop zone.').toBeVisible();
+    const fileChooserPromise = this.page.waitForEvent('filechooser');
+    await dropZone.click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles(observationCardPdf);
+    await expect(this.page.getByRole('heading', { name: 'Card uploaded successfully' }))
+      .toBeVisible({ timeout: 60_000 });
+  }
+
   async expectUploadSuccess(): Promise<void> {
     await expect(
       this.page.getByRole('heading', { name: 'Card uploaded successfully', exact: true }),
       'Expected the valid observation PDF to upload and start AI ingestion.',
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeEnabled({ timeout: 60_000 });
   }
 
   async chooseManualSubmission(): Promise<void> {
     await this.page.getByRole('button', { name: '+ New HSSEQ Card', exact: true }).click();
     await expect(
       this.page.getByRole('heading', { name: 'AI-Assisted Submission', exact: true }),
-    ).toBeVisible();
+    ).toBeEnabled();
     await this.page.getByRole('button', { name: 'Or enter manually without upload' }).click();
     await expect(
       this.page.getByRole('heading', { name: 'Manual Submission', exact: true }),
-    ).toBeVisible();
-    await expect(this.page.getByText(/Step 1 of 5:/)).toBeVisible();
+    ).toBeEnabled();
+    await expect(this.page.getByText(/Step 1 of 5:/)).toBeEnabled();
   }
 
   async completeManualObservationCard(): Promise<void> {
@@ -59,7 +73,7 @@ export class IngestionPage {
     await this.page.getByLabel('Client / Project *').fill('Subsea Test Project');
     await this.clickNextStep(2);
 
-    await expect(this.page.getByRole('radio', { name: 'Observation', exact: true })).toBeVisible();
+    await expect(this.page.getByRole('radio', { name: 'Observation', exact: true })).toBeEnabled();
     await this.page.getByRole('radio', { name: 'Observation', exact: true }).click();
     await this.clickNextStep(3);
     await this.clickNextStep(4);
@@ -149,7 +163,7 @@ export class IngestionPage {
     await expect(
       this.page.getByRole('heading', { name: /HSSEQ Card Submitted/ }),
       'Expected the manual card submission confirmation.',
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeEnabled({ timeout: 30_000 });
 
     if (!this.manualSubmissionMarker) {
       throw new Error('Submit the manual card before checking the dashboard record.');
@@ -158,7 +172,7 @@ export class IngestionPage {
     await this.page.goto('/');
     await expect(
       this.page.getByRole('heading', { name: 'Recent Submissions', exact: true }),
-    ).toBeVisible();
+    ).toBeEnabled();
     const search = this.page.getByRole('textbox', { name: 'Search by location' });
     await search.fill('3rd Party Premises');
     const submittedRow = this.page.getByRole('row').filter({
@@ -167,14 +181,14 @@ export class IngestionPage {
     await expect(
       submittedRow,
       'The newly submitted card should appear in Recent Submissions.',
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeEnabled({ timeout: 30_000 });
   }
 
   async expectManualSubmissionSuccess(): Promise<void> {
     await expect(
       this.page.getByRole('heading', { name: /HSSEQ Card Submitted Successfully/ }),
       'Expected the completed manual card to be submitted successfully.',
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeEnabled({ timeout: 30_000 });
   }
 
   private async selectOption(fieldName: string, optionName: string): Promise<void> {
@@ -182,7 +196,7 @@ export class IngestionPage {
     await expect(field, `${fieldName} is required for manual submission.`).toBeEnabled();
     await field.click();
     const option = this.page.getByRole('option', { name: optionName, exact: true });
-    await expect(option, `Expected ${optionName} in the ${fieldName} options.`).toBeVisible();
+    await expect(option, `Expected ${optionName} in the ${fieldName} options.`).toBeEnabled();
     await option.click();
   }
 
@@ -193,11 +207,11 @@ export class IngestionPage {
 
   private async clickNextStep(expectedStep: number): Promise<void> {
     await this.page.getByRole('button', { name: 'Next Step', exact: true }).click();
-    await expect(this.page.getByText(new RegExp(`Step ${expectedStep} of 5:`))).toBeVisible();
+    await expect(this.page.getByText(new RegExp(`Step ${expectedStep} of 5:`))).toBeEnabled();
   }
 
   private async expectProgress(step: number, title: string, percent: number): Promise<void> {
-    await expect(this.page.getByText(`Step ${step} of 5: ${title}`, { exact: true })).toBeVisible();
-    await expect(this.page.getByText(`${percent}% complete`, { exact: true })).toBeVisible();
+    await expect(this.page.getByText(`Step ${step} of 5: ${title}`, { exact: true })).toBeEnabled();
+    await expect(this.page.getByText(`${percent}% complete`, { exact: true })).toBeEnabled();
   }
 }

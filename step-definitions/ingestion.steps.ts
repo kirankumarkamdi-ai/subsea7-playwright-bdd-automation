@@ -15,6 +15,10 @@ When('I upload the sample HSSEQ observation card PDF', async function (this: Cus
   await ingestionPage(this).uploadSampleObservationCard();
 });
 
+When('I select the sample PDF through the upload drop zone', async function (this: CustomWorld) {
+  await ingestionPage(this).selectSamplePdfThroughDropZone();
+});
+
 Then('the card upload success confirmation should be displayed', async function (this: CustomWorld) {
   await ingestionPage(this).expectUploadSuccess();
 });

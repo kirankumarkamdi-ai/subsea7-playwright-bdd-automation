@@ -1,3 +1,4 @@
+@regression
 Feature: User Dashboard recent submissions
   As an authenticated user
   I want to verify the dashboard and inspect recent submissions

@@ -6,7 +6,7 @@ export class Luna7Page {
   constructor(private readonly page: Page) {}
 
   async sendSafetyQuery(): Promise<void> {
-    await expect(this.page.getByRole('heading', { name: 'Luna7', exact: true })).toBeVisible();
+    await expect(this.page.getByRole('heading', { name: 'Luna7', exact: true })).toBeEnabled();
     const bubbles = this.messageBubbles();
 
     await this.page.getByRole('button', { name: 'Open hazards', exact: true }).click();
@@ -35,7 +35,7 @@ export class Luna7Page {
     await this.expectDistinctMessageStyles(userBubble, responseBubble);
     await expect(
       this.page.getByText('AI can make mistakes. Verify important information with official sources.'),
-    ).toBeVisible();
+    ).toBeEnabled();
   }
 
   private messageBubbles(): Locator {

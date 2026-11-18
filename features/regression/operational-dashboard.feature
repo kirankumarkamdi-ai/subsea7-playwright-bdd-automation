@@ -1,3 +1,4 @@
+@regression
 Feature: Operational Dashboard
   As an authenticated manager
   I want to inspect recent submission volume

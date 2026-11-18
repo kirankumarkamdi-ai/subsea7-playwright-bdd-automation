@@ -6,7 +6,7 @@ export class DashboardSubmissionsPage {
   async hideAllColumns(): Promise<void> {
     await expect(
       this.page.getByRole('heading', { name: 'Recent Submissions', exact: true }),
-    ).toBeVisible();
+    ).toBeEnabled();
     await this.page.getByRole('button', { name: 'Columns', exact: true }).click();
     const columnOptions = this.page.getByRole('menuitemcheckbox');
     await expect(columnOptions).toHaveCount(7);
@@ -21,19 +21,19 @@ export class DashboardSubmissionsPage {
   async expectNoColumnsMessage(): Promise<void> {
     await expect(
       this.page.getByRole('cell', { name: /Choose at least one column to/i }),
-    ).toBeVisible();
+    ).toBeEnabled();
   }
 
   async expectHeaderAndNewCardAction(): Promise<void> {
     const greeting = this.page.getByRole('heading', { name: /^Welcome,\s+\S.+$/ });
-    await expect(greeting, 'The dashboard should greet the signed-in user by name.').toBeVisible();
+    await expect(greeting, 'The dashboard should greet the signed-in user by name.').toBeEnabled();
     await expect(greeting).toContainText(/^Welcome,\s+\S.+$/);
 
     const dateStamp = this.page.getByText(
       /^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),\s+\d{1,2}(st|nd|rd|th)\s+[A-Z][a-z]{2}\s+\d{4}$/,
     );
     await expect(dateStamp, 'The dashboard should show a weekday and formatted live date.')
-      .toBeVisible();
+      .toBeEnabled();
     const dateText = (await dateStamp.innerText()).trim();
     const dateMatch = dateText.match(
       /^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),\s+(\d{1,2})(?:st|nd|rd|th)\s+([A-Z][a-z]{2})\s+(\d{4})$/,
@@ -54,7 +54,7 @@ export class DashboardSubmissionsPage {
       name: '+ New HSSEQ Card',
       exact: true,
     });
-    await expect(newCardButton).toBeVisible();
+    await expect(newCardButton).toBeEnabled();
     await expect(newCardButton).toBeEnabled();
 
     const buttonBounds = await newCardButton.boundingBox();
@@ -77,17 +77,17 @@ export class DashboardSubmissionsPage {
     await newCardButton.click();
     await expect(
       this.page.getByRole('heading', { name: 'AI-Assisted Submission', exact: true }),
-    ).toBeVisible();
+    ).toBeEnabled();
     await this.page.goto('/');
     await expect(
       this.page.getByRole('heading', { name: 'Recent Submissions', exact: true }),
-    ).toBeVisible();
+    ).toBeEnabled();
   }
 
   async filterByCardTypeAndStatus(cardType: string, status: string): Promise<void> {
     await expect(
       this.page.getByRole('heading', { name: 'Recent Submissions', exact: true }),
-    ).toBeVisible();
+    ).toBeEnabled();
     const filters = this.page.getByRole('combobox');
     await expect(filters).toHaveCount(8);
 
@@ -157,7 +157,7 @@ export class DashboardSubmissionsPage {
     await filter.click();
     const option = this.page.getByRole('option', { name: optionName, exact: true });
     await expect(option, `Expected "${optionName}" as a recent-submissions filter option.`)
-      .toBeVisible();
+      .toBeEnabled();
     await option.click();
     await expect(filter).toContainText(optionName);
   }

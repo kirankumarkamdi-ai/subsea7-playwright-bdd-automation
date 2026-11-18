@@ -1,3 +1,4 @@
+@regression
 Feature: Admin card validation and governance
   As a worksite_admin
   I want to create, review, approve, or reject a card

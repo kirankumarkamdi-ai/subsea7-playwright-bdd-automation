@@ -1,3 +1,4 @@
+@regression
 Feature: My History search and card details
   As an authenticated user
   I want to search and manage submitted HSSEQ cards

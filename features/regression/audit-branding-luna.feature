@@ -1,4 +1,4 @@
-@audit-branding-luna
+@regression @audit-branding-luna
 Feature: Application audit access, branding, and Luna7
   As an authenticated user
   I want to verify application access, branding, and safety assistance
