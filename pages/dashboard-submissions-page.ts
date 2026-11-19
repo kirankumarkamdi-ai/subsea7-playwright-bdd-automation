@@ -3,6 +3,43 @@ import { expect, Locator, Page } from '@playwright/test';
 export class DashboardSubmissionsPage {
   constructor(private readonly page: Page) {}
 
+  async expectAnalyticsDashboardComponents(): Promise<void> {
+    await expect(this.page.getByRole('heading', { name: /^Welcome,\s+.+$/ })).toBeVisible();
+    await expect(
+      this.page.getByText(
+        /^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),\s+\d{1,2}(st|nd|rd|th)\s+[A-Z][a-z]{2}\s+\d{4}$/,
+      ),
+    ).toBeVisible();
+
+    const globalFilters = this.page.getByRole('combobox');
+    await expect(globalFilters).toHaveCount(8);
+    for (let index = 0; index < 5; index += 1) {
+      await expect(globalFilters.nth(index)).toBeEnabled();
+    }
+
+    for (const label of ['Total Submissions', 'Pending Processing', 'Safety Actions Closed']) {
+      const metricLabel = this.page.getByRole('heading', { name: label, exact: true });
+      await expect(metricLabel).toBeVisible();
+      await expect
+        .poll(
+          () =>
+            metricLabel.locator('xpath=../..').evaluate((card) =>
+              Array.from(card.querySelectorAll<HTMLElement>('*'))
+                .filter((element) => element.children.length === 0)
+                .map((element) => element.textContent?.trim() ?? '')
+                .find((text) => /^\d[\d,]*$/.test(text)) ?? '',
+            ),
+          { message: `Wait for the "${label}" dashboard summary card to load.` },
+        )
+        .toMatch(/^\d[\d,]*$/);
+    }
+
+    await expect(
+      this.page.getByRole('heading', { name: 'Recent Submissions', exact: true }),
+    ).toBeVisible();
+    await expect(this.page.getByRole('table')).toBeVisible();
+  }
+
   async hideAllColumns(): Promise<void> {
     await expect(
       this.page.getByRole('heading', { name: 'Recent Submissions', exact: true }),
@@ -95,11 +132,120 @@ export class DashboardSubmissionsPage {
     await this.selectOption(filters.nth(7), status);
   }
 
+  async filterByCardTypeSourceAndStatus(
+    cardType: string,
+    source: string,
+    status: string,
+  ): Promise<void> {
+    const filters = this.page.getByRole('combobox');
+    await expect(filters).toHaveCount(8);
+    await this.selectOption(filters.nth(5), cardType);
+    await this.selectOption(filters.nth(6), source);
+    await this.selectOption(filters.nth(7), status);
+  }
+
+  async expectAnalyticsRecentSubmissions(
+    cardType: string,
+    source: string,
+    status: string,
+  ): Promise<void> {
+    const headers = await this.page.getByRole('table').getByRole('columnheader').allTextContents();
+    expect(headers.map((header) => header.trim())).toEqual([
+      'Date',
+      'Submitter',
+      'Location',
+      'Description',
+      'Card Type',
+      'Source',
+      'Status',
+    ]);
+
+    const filters = this.page.getByRole('combobox');
+    await expect(filters.nth(5)).toContainText(cardType);
+    await expect(filters.nth(6)).toContainText(source);
+    await expect(filters.nth(7)).toContainText(status);
+    await this.waitForGridResponse();
+  }
+
+  async hideAndRestoreRecentSubmissionColumn(columnName: string): Promise<void> {
+    const columnHeader = this.page.getByRole('columnheader', { name: columnName, exact: true });
+    await expect(columnHeader).toBeVisible();
+    await this.setColumnVisibility(columnName, false);
+    await expect(columnHeader).toHaveCount(0);
+    await expect(this.page.getByRole('columnheader', { name: 'Status', exact: true })).toBeVisible();
+    await this.setColumnVisibility(columnName, true);
+    await expect(columnHeader).toBeVisible();
+  }
+
+  async clearRecentSubmissionSearchAndFilters(): Promise<void> {
+    const search = this.page.getByRole('textbox', { name: 'Search by location' });
+    await search.fill('');
+    await this.waitForGridResponse();
+
+    const filters = this.page.getByRole('combobox');
+    await this.selectOption(filters.nth(5), 'All Card Types');
+    await this.selectOption(filters.nth(6), 'All Sources');
+    await this.selectOption(filters.nth(7), 'All Statuses');
+  }
+
+  async expectDefaultRecentSubmissionView(): Promise<void> {
+    const filters = this.page.getByRole('combobox');
+    await expect(filters.nth(5)).toContainText('All Card Types');
+    await expect(filters.nth(6)).toContainText('All Sources');
+    await expect(filters.nth(7)).toContainText('All Statuses');
+    await expect(this.page.getByRole('textbox', { name: 'Search by location' })).toHaveValue('');
+    const headers = await this.page.getByRole('table').getByRole('columnheader').allTextContents();
+    expect(headers.map((header) => header.trim())).toEqual([
+      'Date',
+      'Submitter',
+      'Location',
+      'Description',
+      'Card Type',
+      'Source',
+      'Status',
+    ]);
+    await this.waitForGridResponse();
+  }
+
   async searchByLocation(location: string): Promise<void> {
     const search = this.page.getByRole('textbox', { name: 'Search by location' });
     await expect(search).toBeEnabled();
     await search.fill(location);
     await this.waitForGridResponse();
+  }
+
+  async deletePendingApprovalCard(cardId: string, description: string): Promise<void> {
+    await expect(
+      this.page.getByRole('heading', { name: 'Recent Submissions', exact: true }),
+    ).toBeVisible();
+    await this.selectOption(this.page.getByRole('combobox').nth(7), 'Pending Approval');
+
+    const row = this.dataRows().filter({ hasText: description });
+    await expect(row, 'Expected the newly created card in Pending Approval submissions.')
+      .toHaveCount(1, { timeout: 30_000 });
+    await expect(row).toContainText('pending-approval');
+    await row.getByText(/pending-approval/i).click();
+
+    const details = this.page.getByRole('dialog', { name: 'HSSEQ Card Details' });
+    await expect(details).toBeVisible();
+    await expect(details.getByText(cardId, { exact: true }).first()).toBeVisible();
+    await details.getByRole('button', { name: 'Delete', exact: true }).click();
+
+    const confirmation = this.page.getByRole('alertdialog', {
+      name: 'Are you absolutely sure?',
+    });
+    await expect(confirmation).toBeVisible();
+    await confirmation.getByRole('button', { name: 'Delete Card', exact: true }).click();
+    await expect(this.page.getByText('Card deleted', { exact: true })).toBeVisible({
+      timeout: 30_000,
+    });
+    await expect(row, 'The deleted card should disappear from Recent Submissions.').toHaveCount(0, {
+      timeout: 30_000,
+    });
+  }
+
+  async expectCardDeleted(description: string): Promise<void> {
+    await expect(this.dataRows().filter({ hasText: description })).toHaveCount(0);
   }
 
   async expectResultsOrEmptyState(
@@ -160,6 +306,16 @@ export class DashboardSubmissionsPage {
       .toBeEnabled();
     await option.click();
     await expect(filter).toContainText(optionName);
+  }
+
+  private async setColumnVisibility(columnName: string, visible: boolean): Promise<void> {
+    await this.page.getByRole('button', { name: 'Columns', exact: true }).click();
+    const option = this.page.getByRole('menuitemcheckbox', { name: columnName, exact: true });
+    await expect(option).toBeVisible();
+    if ((await option.getAttribute('aria-checked')) !== String(visible)) {
+      await option.click();
+    }
+    await this.page.keyboard.press('Escape');
   }
 
   private async waitForGridResponse(): Promise<void> {

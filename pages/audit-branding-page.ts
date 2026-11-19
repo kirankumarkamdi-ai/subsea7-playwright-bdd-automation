@@ -1,4 +1,4 @@
-import { expect, Page } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
 
 export class AuditBrandingPage {
   constructor(private readonly page: Page) {}
@@ -11,6 +11,60 @@ export class AuditBrandingPage {
     ).toBeEnabled();
     await expect(this.page.getByRole('heading', { name: 'Activity Log', exact: true }))
       .toBeEnabled();
+  }
+
+  async searchForCard(cardId: string): Promise<void> {
+    const search = this.page.getByRole('textbox', { name: 'Search audit logs' });
+    await expect(search).toBeEnabled();
+    await search.fill(cardId);
+
+    const matchingRows = this.activityRows().filter({ hasText: cardId });
+    await expect(matchingRows, `Expected audit activity for card "${cardId}".`).toHaveCount(1, {
+      timeout: 30_000,
+    });
+  }
+
+  async expectActivityForCard(cardId: string): Promise<void> {
+    const table = this.page.getByRole('table');
+    const headers = (await table.getByRole('row').first().getByRole('columnheader').allTextContents())
+      .map((header) => header.trim());
+    expect(headers).toEqual(['Timestamp', 'User ID', 'Action', 'Card ID', 'Description']);
+
+    const row = this.activityRows().filter({ hasText: cardId });
+    await expect(row, `Expected one audit activity row for card "${cardId}".`).toHaveCount(1);
+    const cells = row.getByRole('cell');
+    await expect(cells).toHaveCount(headers.length);
+    await expect(cells.nth(0)).toContainText(
+      /^\d{1,2}(st|nd|rd|th)\s+[A-Z][a-z]{2}\s+\d{4},\s+\d{1,2}:\d{2}$/,
+    );
+    await expect(cells.nth(1)).not.toBeEmpty();
+    await expect(cells.nth(2)).toHaveText('Submitted');
+    await expect(cells.nth(3)).toHaveText(cardId);
+    await expect(cells.nth(4)).toContainText('Card submitted for admin review');
+  }
+
+  async expectDynamicSummaryCountersAndColors(): Promise<void> {
+    await expect(this.page.getByText('Loading…', { exact: true })).toBeHidden({
+      timeout: 30_000,
+    });
+
+    const expectedIcons = [
+      { label: 'Total Actions Today', colorClass: /text-primary\/20/ },
+      {
+        label: 'Validations',
+        colorClass: /text-\[hsl\(var\(--stat-success\)\)\]\/20/,
+      },
+      { label: 'Rejections', colorClass: /text-destructive\/20/ },
+      { label: 'Submits Made', colorClass: /text-primary\/20/ },
+    ];
+
+    for (const { label, colorClass } of expectedIcons) {
+      const metricLabel = this.page.getByText(label, { exact: true });
+      await expect(metricLabel).toBeVisible();
+      const metric = metricLabel.locator('xpath=../..');
+      await expect(metric.locator('p').nth(1)).toHaveText(/^\d+$/);
+      await expect(metric.locator('svg')).toHaveClass(colorClass);
+    }
   }
 
   async expectBrandingAndUserInitials(): Promise<void> {
@@ -65,5 +119,11 @@ export class AuditBrandingPage {
     if (!badgeBounds || !viewport || badgeBounds.x > 80 || badgeBounds.y < viewport.height - 80) {
       throw new Error('The user profile badge is not positioned at the bottom-left of the sidebar.');
     }
+  }
+
+  private activityRows(): Locator {
+    return this.page.getByRole('table').getByRole('row').filter({
+      has: this.page.getByRole('cell'),
+    });
   }
 }

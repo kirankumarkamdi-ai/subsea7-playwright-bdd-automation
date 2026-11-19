@@ -159,6 +159,35 @@ export class IngestionPage {
     await this.page.getByRole('button', { name: 'Submit Card', exact: true }).click();
   }
 
+  async createManualObservationCardForGovernance(): Promise<{
+    cardId: string;
+    description: string;
+  }> {
+    await this.chooseManualSubmission();
+    await this.completeManualObservationCardWithProgressAndNavigation();
+    await this.expectManualSubmissionComplete();
+
+    if (!this.manualSubmissionMarker) {
+      throw new Error('The submitted governance card does not have a unique description marker.');
+    }
+
+    const row = this.page.getByRole('row').filter({ hasText: this.manualSubmissionMarker });
+    await expect(row, 'Expected the new governance card in Recent Submissions.').toHaveCount(1);
+    await row.getByText(/pending-approval/i).click();
+
+    const details = this.page.getByRole('dialog', { name: 'HSSEQ Card Details' });
+    await expect(details).toBeVisible();
+    const cardId = (await details.innerText()).match(
+      /[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}/i,
+    )?.[0];
+    if (!cardId) {
+      throw new Error('Could not read the generated card ID from the card details dialog.');
+    }
+    await details.getByRole('button', { name: 'Close', exact: true }).click();
+
+    return { cardId, description: this.manualSubmissionMarker };
+  }
+
   async expectManualSubmissionComplete(): Promise<void> {
     await expect(
       this.page.getByRole('heading', { name: /HSSEQ Card Submitted/ }),

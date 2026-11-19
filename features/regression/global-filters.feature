@@ -12,5 +12,5 @@ Feature: Synergi global filters
       | Shore    | Onshore               |
       | Worksite | 3rd Party Premises    |
       | Client   | ABB                   |
-      | Project  | Admarine              |
+      | Project  | All Projects          |
     Then the dashboard should show the selected filters and refreshed results

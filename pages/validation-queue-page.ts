@@ -46,8 +46,25 @@ export class ValidationQueuePage {
   }
 
   async filterByTypeAndSource(cardType: string, source: string): Promise<void> {
-    await this.selectFilterOption('All Card Types', cardType);
-    await this.selectFilterOption('All Sources', source);
+    const filters = this.page.getByRole('combobox');
+    await expect.poll(() => filters.count()).toBeGreaterThanOrEqual(7);
+    const defaults = [
+      'All Countries',
+      'All Shores',
+      'All Worksites',
+      'All Clients',
+      'All Projects',
+      'All Card Types',
+      'All Sources',
+    ];
+    for (let index = 0; index < defaults.length; index += 1) {
+      await this.selectOption(filters.nth(index), defaults[index]);
+    }
+
+    const cardTypeFilter = filters.nth(5);
+    const sourceFilter = filters.nth(6);
+    await this.selectOption(cardTypeFilter, cardType);
+    await this.selectOption(sourceFilter, source);
   }
 
   async expectRowsMatchFilters(cardType: string, source: string): Promise<void> {
@@ -91,15 +108,18 @@ export class ValidationQueuePage {
     return this.page.getByRole('table').getByRole('row');
   }
 
-  private async selectFilterOption(currentValue: string, optionName: string): Promise<void> {
-    const filter = this.page.getByRole('combobox').filter({ hasText: currentValue });
-    await expect(filter, `Expected the "${currentValue}" validation filter.`).toHaveCount(1);
+  private async selectOption(filter: Locator, optionName: string): Promise<void> {
     await expect(filter).toBeEnabled();
-    await filter.click();
+    if ((await filter.innerText()).trim() === optionName) {
+      return;
+    }
 
+    await filter.click();
     const option = this.page.getByRole('option', { name: optionName, exact: true });
-    await expect(option).toBeEnabled();
+    await expect(option, `Expected "${optionName}" in the validation queue filter options.`)
+      .toBeEnabled();
     await option.click();
+    await expect(filter).toContainText(optionName);
   }
 }
 

@@ -2,11 +2,11 @@ import { expect, Locator, Page } from '@playwright/test';
 
 type RiskColor = 'red' | 'amber' | 'green' | 'blue';
 
-const riskMetrics: Array<{ label: string; count: string; color?: RiskColor }> = [
-  { label: 'Total Incidents', count: '29,340' },
-  { label: 'High Risk Incidents', count: '1,292', color: 'red' },
-  { label: 'Medium Risk Incidents', count: '6,884', color: 'amber' },
-  { label: 'Low Risk Incidents', count: '21,091', color: 'blue' },
+const riskMetrics: Array<{ label: string; color?: RiskColor }> = [
+  { label: 'Total Incidents' },
+  { label: 'High Risk Incidents', color: 'red' },
+  { label: 'Medium Risk Incidents', color: 'amber' },
+  { label: 'Low Risk Incidents', color: 'blue' },
 ];
 
 export class RiskInsightsPage {
@@ -15,14 +15,15 @@ export class RiskInsightsPage {
   constructor(private readonly page: Page) {}
 
   async expectSummaryCards(): Promise<void> {
-    for (const { label, count, color } of riskMetrics) {
+    for (const { label, color } of riskMetrics) {
       const labelLocator = this.page.getByText(label, { exact: true });
-      await expect(labelLocator, `Expected the "${label}" risk metric.`).toBeEnabled();
-      const countLocator = this.page.getByText(count, { exact: true });
-      await expect(countLocator).toBeEnabled();
+      await expect(labelLocator, `Expected the "${label}" risk metric.`).toBeVisible();
+      const countLocator = labelLocator.locator('xpath=following-sibling::p[1]');
+      await expect(countLocator, `Expected a live numeric count for "${label}".`)
+        .toHaveText(/^\d[\d,]*$/, { timeout: 30_000 });
 
       if (color) {
-        const styles = await this.metricStyles(labelLocator, countLocator, count);
+        const styles = await this.metricStyles(labelLocator, countLocator);
         expect(matchesRiskColor(styles.borderColor, color), `${label} border should be ${color}.`)
           .toBe(true);
         expect(matchesRiskColor(styles.textColor, color), `${label} text should be ${color}.`)
@@ -122,8 +123,8 @@ export class RiskInsightsPage {
   private async metricStyles(
     label: Locator,
     countLocator: Locator,
-    count: string,
   ): Promise<{ borderColor: string; textColor: string }> {
+    const count = (await countLocator.innerText()).trim();
     const borderColor = await label.evaluate((element, expectedCount) => {
       let container: HTMLElement | null = element.parentElement;
       while (container && !container.innerText.includes(expectedCount)) {

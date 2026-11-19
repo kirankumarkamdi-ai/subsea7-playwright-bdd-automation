@@ -28,6 +28,7 @@ Feature: HSSEQ card ingestion and submission
   @manual @requires-auth
   Scenario: TC-MAN-01 - Complete and navigate the manual submission wizard
     Given an authenticated session is open on the user dashboard
-    When I choose manual submission from new card creation
+    When I reset the dashboard Synergi filters
+    And I choose manual submission from new card creation
     And I complete the five-step manual submission and verify progress and data retention
     Then the manual card submission should be confirmed

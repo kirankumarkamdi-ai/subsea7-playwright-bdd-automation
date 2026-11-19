@@ -25,6 +25,17 @@ export class ModuleNavigationPage {
     await expect(this.page.getByRole('heading', { name: 'Recent Submissions', exact: true })).toBeEnabled();
   }
 
+  async expectAnalyticsModulesAvailable(): Promise<void> {
+    const analyticsRoutes = ['/submit', '/history', '/ai-agent', '/risk-insights', '/data-search'];
+    const navigation = this.page.getByRole('navigation');
+    for (const route of analyticsRoutes) {
+      await expect(
+        navigation.locator(`a[href="${route}"]`),
+        `Expected Analytics navigation to include the "${route}" module.`,
+      ).toHaveCount(1);
+    }
+  }
+
   async clickModule(moduleName: string): Promise<void> {
     if (!isModuleName(moduleName)) {
       throw new Error(`Unknown sidebar module "${moduleName}".`);

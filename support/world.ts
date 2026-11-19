@@ -13,6 +13,7 @@ import { DashboardSubmissionsPage } from '../pages/dashboard-submissions-page';
 import { AuditBrandingPage } from '../pages/audit-branding-page';
 import { Luna7Page } from '../pages/luna7-page';
 import { OperationalDashboardPage } from '../pages/operational-dashboard-page';
+import { AnalyticsAccessRestrictionsPage } from '../pages/analytics-access-restrictions-page';
 
 export class CustomWorld extends World {
   browser!: Browser;
@@ -31,4 +32,6 @@ export class CustomWorld extends World {
   auditBrandingPage?: AuditBrandingPage;
   luna7Page?: Luna7Page;
   operationalDashboardPage?: OperationalDashboardPage;
+  analyticsAccessRestrictionsPage?: AnalyticsAccessRestrictionsPage;
+  createdManualCard?: { cardId: string; description: string };
 }

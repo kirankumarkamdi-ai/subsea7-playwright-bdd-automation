@@ -64,6 +64,20 @@ export class SynergiGlobalFiltersPage {
     await expect(resultsArea).not.toContainText(/loading/i);
   }
 
+  async resetFiltersAndRefresh(): Promise<void> {
+    const defaults: FilterSelections = { ...defaultOptions };
+    await this.selectFilters(defaults);
+    await this.page.reload();
+    await this.expectDashboardResultsLoaded();
+    await this.selectFilters(defaults);
+    await this.expectDashboardResultsLoaded();
+
+    const filters = this.page.getByRole('combobox');
+    for (let index = 0; index < filterNames.length; index += 1) {
+      await expect(filters.nth(index)).toContainText(defaultOptions[filterNames[index]]);
+    }
+  }
+
   private selectedFilters: FilterSelections = { ...defaultOptions };
 
   private async selectOption(

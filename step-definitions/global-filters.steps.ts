@@ -7,6 +7,10 @@ function globalFiltersPage(world: CustomWorld): SynergiGlobalFiltersPage {
   return world.synergiGlobalFiltersPage;
 }
 
+When('I reset the dashboard Synergi filters', async function (this: CustomWorld) {
+  await globalFiltersPage(this).resetFiltersAndRefresh();
+});
+
 When(
   'I select the following global filters:',
   async function (this: CustomWorld, table: DataTable) {

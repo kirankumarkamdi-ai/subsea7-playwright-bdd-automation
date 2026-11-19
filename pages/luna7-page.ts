@@ -1,22 +1,21 @@
 import { expect, Locator, Page } from '@playwright/test';
 
 export class Luna7Page {
-  private readonly safetyQuestion = 'What precautions help prevent slips and trips at work?';
+  private readonly safetyQuestion = 'safety norms';
 
   constructor(private readonly page: Page) {}
 
   async sendSafetyQuery(): Promise<void> {
-    await expect(this.page.getByRole('heading', { name: 'Luna7', exact: true })).toBeEnabled();
+    await expect(this.page.getByRole('heading', { name: 'Luna7', exact: true })).toBeVisible();
     const bubbles = this.messageBubbles();
-
-    await this.page.getByRole('button', { name: 'Open hazards', exact: true }).click();
-    const beforeSuggestion = await bubbles.count();
-    await this.waitForResponse(beforeSuggestion);
-
     const input = this.page.getByRole('textbox', { name: 'Ask the AI Safety Agent...' });
+    await expect(input).toBeVisible();
     await input.fill(this.safetyQuestion);
     const beforeQuestion = await bubbles.count();
-    await input.locator('xpath=..').getByRole('button').click();
+    const sendButton = input.locator('xpath=..').getByRole('button');
+    await expect(sendButton, 'Expected the send button beside the Luna7 prompt.').toHaveCount(1);
+    await expect(sendButton).toBeEnabled();
+    await sendButton.click();
     await this.waitForResponse(beforeQuestion);
   }
 

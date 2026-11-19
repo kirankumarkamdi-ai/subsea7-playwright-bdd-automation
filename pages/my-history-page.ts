@@ -63,40 +63,34 @@ export class MyHistoryPage {
     await expect(this.detailsDialog()).toBeEnabled();
   }
 
-  async expectDetailsActions(): Promise<void> {
+  async expectDeleteActionWithoutPrintView(): Promise<void> {
     const details = this.detailsDialog();
-    await expect(details.getByRole('button', { name: 'Print View', exact: true })).toBeEnabled();
     await expect(details.getByRole('button', { name: 'Delete', exact: true })).toBeEnabled();
     await expect(details.getByRole('button', { name: 'Close', exact: true })).toBeEnabled();
+    await expect(details.getByRole('button', { name: 'Print View', exact: true })).toHaveCount(0);
   }
 
-  async openAndClosePrintView(): Promise<void> {
-    const popupPromise = this.page.waitForEvent('popup');
-    await this.detailsDialog().getByRole('button', { name: 'Print View', exact: true }).click();
-    const printPage = await popupPromise;
-    await printPage.waitForLoadState('domcontentloaded');
-    await expect(printPage.locator('body')).not.toBeEmpty();
-    await printPage.close();
-    await expect(this.detailsDialog()).toBeEnabled();
-  }
-
-  async openAndCancelDelete(): Promise<void> {
+  async confirmDeletePendingApprovalCard(): Promise<void> {
     const details = this.detailsDialog();
-    await details.getByRole('button', { name: 'Delete', exact: true }).click();
-    const confirmationHeading = this.page.getByRole('heading', {
-      name: 'Are you absolutely sure?',
-      exact: true,
-    });
-    await expect(confirmationHeading).toBeEnabled();
-    await expect(this.page.getByRole('button', { name: 'Delete Card', exact: true })).toBeEnabled();
-    await this.page.getByRole('button', { name: 'Cancel', exact: true }).click();
-    await expect(confirmationHeading).toBeHidden();
-    await expect(details).toBeEnabled();
-  }
+    const cardId = (await details.innerText()).match(
+      /[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}/i,
+    )?.[0];
+    if (!cardId) {
+      throw new Error('Could not read the selected card ID before deletion.');
+    }
 
-  async expectCardNotDeleted(): Promise<void> {
-    await expect(this.detailsDialog()).toBeEnabled();
-    await this.expectNumericRecordCount();
+    await details.getByRole('button', { name: 'Delete', exact: true }).click();
+    const confirmation = this.page.getByRole('alertdialog', {
+      name: 'Are you absolutely sure?',
+    });
+    await expect(confirmation).toBeVisible();
+    await confirmation.getByRole('button', { name: 'Delete Card', exact: true }).click();
+    await expect(this.page.getByText('Card deleted', { exact: true })).toBeVisible({
+      timeout: 30_000,
+    });
+    await expect(this.dataRows().filter({ hasText: cardId })).toHaveCount(0, {
+      timeout: 30_000,
+    });
   }
 
   async closeDetails(): Promise<void> {
@@ -124,11 +118,14 @@ export class MyHistoryPage {
   }
 
   private detailsDialog(): Locator {
-    return this.page.getByRole('dialog', { name: 'HSSEQ Card Details Print View' });
+    return this.page.getByRole('dialog', { name: /HSSEQ Card Details/ });
   }
 
   private dataRows(): Locator {
-    return this.table.getByRole('row').filter({ has: this.page.getByRole('cell') });
+    return this.table
+      .getByRole('row')
+      .filter({ has: this.page.getByRole('cell') })
+      .filter({ hasText: /\S/ });
   }
 
   private async waitForRecordCount(): Promise<void> {

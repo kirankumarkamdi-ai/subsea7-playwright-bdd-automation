@@ -181,7 +181,10 @@ export class DataSearchPage {
   async expectExportModal(): Promise<void> {
     const dialog = this.exportDialog();
     await expect(dialog).toBeEnabled();
-    await expect(dialog).toContainText(/\d[\d,]*\s+filtered records?/i);
+    const recordSummary = dialog.getByText(/\d[\d,]*\s+filtered records?/i);
+    await expect(recordSummary).toBeVisible();
+    const recordCount = Number((await recordSummary.innerText()).replace(/[^\d]/g, ''));
+    expect(recordCount, 'The export should respect the 5,000-card limit.').toBeLessThanOrEqual(5000);
     await expect(dialog.getByRole('button', { name: 'Cancel', exact: true })).toBeEnabled();
     await expect(dialog.getByRole('button', { name: 'Generate', exact: true })).toBeEnabled();
   }

@@ -41,26 +41,19 @@ When('I open a pending-approval card from My History', async function (this: Cus
 });
 
 Then(
-  'the card details should expose Print View and Delete actions',
+  'the card details should expose the Delete action without Print View',
   async function (this: CustomWorld) {
-    await myHistoryPage(this).expectDetailsActions();
+    await myHistoryPage(this).expectDeleteActionWithoutPrintView();
   },
 );
 
-When('I open and close the card print view', async function (this: CustomWorld) {
-  await myHistoryPage(this).openAndClosePrintView();
+When('I confirm deleting the card from My History', async function (this: CustomWorld) {
+  await myHistoryPage(this).confirmDeletePendingApprovalCard();
 });
 
-When('I open and cancel the delete confirmation', async function (this: CustomWorld) {
-  await myHistoryPage(this).openAndCancelDelete();
+Then('the card should be deleted successfully', async function (this: CustomWorld) {
+  await myHistoryPage(this).expectSubmissionList();
 });
-
-Then(
-  'the card details should remain open and the card should not be deleted',
-  async function (this: CustomWorld) {
-    await myHistoryPage(this).expectCardNotDeleted();
-  },
-);
 
 When('I close the card details', async function (this: CustomWorld) {
   await myHistoryPage(this).closeDetails();

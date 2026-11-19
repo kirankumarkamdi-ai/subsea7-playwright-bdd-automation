@@ -47,7 +47,7 @@ Create a local Playwright session after signing in with your approved account an
 npm run auth:setup
 ```
 
-In the opened browser, complete sign-in and MFA, then press Enter in the terminal to save the session to `playwright/.auth/user.json`. The Playwright config and Cucumber hooks use this file when it exists. It is ignored by Git because it contains sensitive session data; do not share or commit it. Re-run the setup command when the session expires. For approval scenarios, authenticate as a `worksite_admin` user.
+In the opened browser, complete sign-in and MFA, then press Enter in the terminal to save the session to `playwright/.auth/user.json`. The Playwright config and Cucumber hooks use this file when it exists. It is ignored by Git because it contains sensitive session data; do not share or commit it. Re-run the setup command when the session expires. For approval scenarios, authenticate as a `worksite_admin` user; for system-administrator audit and deletion scenarios, authenticate as a `sys_admin` user.
 
 ## Record a UI flow with Playwright Codegen
 
@@ -127,6 +127,22 @@ npm run test:bdd -- --tags @data-search
 
 They exercise the Synergi global filters, location search and result-count consistency, Excel export and download, and card-type/status options and badge colors.
 
+Run the Analytics-user scenarios:
+
+```bash
+npm run test:bdd -- --tags @analytics
+```
+
+They require a saved Analytics-user session and cover the dashboard, manual submission, My History, Luna7, Risk Insights, and Data Search export. Risk totals are checked as live numeric values because the dataset changes over time. My History currently exposes Card Type and Status filters; it does not provide a Country filter.
+
+Run Analytics role access-restriction scenarios:
+
+```bash
+npm run test:bdd -- --tags @access-control
+```
+
+They verify that Analytics users cannot access AI-assisted PDF submission, validation and decision workflows, closed-card deletion/reopening, or Audit Logs.
+
 Run all authenticated scenarios or only the admin scenarios:
 
 ```bash
@@ -134,7 +150,7 @@ npm run test:bdd:requires-auth
 npm run test:bdd:admin
 ```
 
-The admin scenarios require a saved `worksite_admin` browser session.
+The admin approval scenarios require a saved `worksite_admin` browser session. The system-administrator governance scenarios require a saved `sys_admin` session. TC-DEL-01 creates and deletes its own Pending Approval card; manually submitted cards do not start in Closed status.
 
 If the scenario reports that the app redirected to an authentication provider, the saved session has expired or is invalid. Run `npm run auth:setup`, complete sign-in and MFA, press Enter in the terminal to overwrite the local session state, and retry.
 
