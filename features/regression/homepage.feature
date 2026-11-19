@@ -1,3 +1,4 @@
+@regression
 Feature: Homepage regression
   As a visitor
   I want to open the website homepage

@@ -1,3 +1,4 @@
+@regression
 Feature: Data Search and export
   As an authenticated user
   I want to search and filter historical cards

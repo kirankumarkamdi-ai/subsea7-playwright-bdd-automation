@@ -1,3 +1,4 @@
+@regression
 Feature: Module navigation
   As an authenticated user
   I want to navigate between application modules
